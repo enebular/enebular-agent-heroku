@@ -1,0 +1,25 @@
+{
+  "name": "enebular-spot-app",
+  "version": "0.0.1",
+  "private": true,
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app"
+  },
+  "files": [
+  ],
+  "dependencies": {
+    "bcryptjs": "~2.x",
+    "body-parser": "^1.14.0",
+    "ejs": "^2.3.4",
+    "express": "~4.x",
+    "express-session": "^1.11.3",
+    "jsonwebtoken": "^5.0.4",
+    "request": "^2.65.0",
+    "uuid": "^2.0.1",
+    "when": "~3.x",
+    "node-red": "^0.13.4"
+  },
+  "devDependencies": {}
+}
