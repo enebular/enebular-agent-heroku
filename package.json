@@ -19,7 +19,8 @@
     "request": "^2.65.0",
     "uuid": "^2.0.1",
     "when": "~3.x",
-    "node-red": "^0.13.4"
+    "node-red": "^0.13.4",
+    "node-red-contrib-enebular" : "enebular/node-red-contrib-enebular#lambda-deploy"
   },
   "devDependencies": {}
 }
