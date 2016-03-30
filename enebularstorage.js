@@ -62,18 +62,18 @@ function getEnebularFlow(cb) {
 }
 
 function saveEnebularFlow(params) {
-    var defer = when.defer();
-    var url = settings.enebularUrl + "/flows/"+settings.flowId+"?access_token=" + settings.accessToken;
-    request({ url: url, method: 'PUT', json: params, function(err, res, body) {
-            if (!err && res.statusCode == 200) {
-                console.log("save flows to enebular");
-                defer.resolve();
-            } else {
-                defer.reject(err);
-            }   
-        }
+    return new Promise(function(resolve, reject) {
+        var url = settings.enebularUrl + "/flows/"+settings.flowId+"?access_token=" + settings.accessToken;
+        request({ url: url, method: 'PUT', json: params, function(err, res, body) {
+                if (!err && res.statusCode == 200) {
+                    console.log("save flows to enebular");
+                    resolve();
+                } else {
+                    reject(err);
+                }   
+            }
+        });
     });
-    return defer.promise;
 }
 
 function getFlows() {
@@ -194,7 +194,7 @@ var enebularstorage = {
         return getFlows();
     },
     saveFlows: function(flows) {
-        saveFlows(flows);
+        return saveFlows(flows);
     },
 
     getCredentials: function() {
