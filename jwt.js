@@ -15,10 +15,10 @@ module.exports = function(publicKeyPath, options) {
           options.audience = 'enebular-spot-app';
           jwt.verify(token, publicKey, options, function(err, identity) {
             if (err) {
-              return res.status(401).render('../views/error', {message:err.message});
+              return res.status(401).send(err.message);
             }
             if(process.env.USER_ID != identity.sub) {
-              res.status(401).render('../views/error', {message:'Unauthorized: userId does not match.'});
+              res.status(401).send('Unauthorized: userId does not match.');
             }else{
               console.log('Verified identity=', identity);
               req.session.identity = identity;
@@ -26,6 +26,8 @@ module.exports = function(publicKeyPath, options) {
             }
           });
       } else {
+        //req.session.identity = {};
+        //res.redirect(req.path);
         res.status(401).send('Unauthorized');
       }
     }
