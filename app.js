@@ -34,11 +34,11 @@ server.listen(port);
 
 RED.start();
 
-app.get("/sys/restart", function(req, res) {
-	var user_id = req.query.USER_ID;
-	var project_id = req.query.PROJECT_ID;
-	var flow_id = req.query.FLOW_ID;
-	var access_token = req.query.ACCESS_TOKEN;
+app.post("/sys/restart", function(req, res) {
+	var user_id = req.params.USER_ID;
+	var project_id = req.params.PROJECT_ID;
+	var flow_id = req.params.FLOW_ID;
+	var access_token = req.params.ACCESS_TOKEN;
 	process.send({event:"restart", envs:{
 		USER_ID: user_id,
 		PROJECT_ID: project_id,
