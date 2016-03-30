@@ -30,7 +30,7 @@ function timeoutWrap(func) {
             resolve(a,b,c,d);
         });
         promise.otherwise(function(err) {
-            console.log("TIMEOUT: ",func);
+            console.log("TIMEOUT: ",func, err);
             if (err == "timeout") {
                 resolve(func());
             } else {
@@ -64,15 +64,14 @@ function getEnebularFlow(cb) {
 function saveEnebularFlow(params) {
     return when.promise(function(resolve,reject,notify) {
         var url = settings.enebularUrl + "/flows/"+settings.flowId+"?access_token=" + settings.accessToken;
-        request({ url: url, method: 'PUT', json: params, function(err, res, body) {
+        request({ url: url, method: 'PUT', json: params}, function(err, res, body) {
                 if (!err && res.statusCode == 200) {
                     console.log("save flows to enebular");
                     resolve();
                 } else {
                     reject(err);
-                }   
-            }
-        });
+                }
+            });
     });
 }
 
@@ -160,15 +159,14 @@ function saveFlow(fn,data) {
           "tags": [],
           "userId": settings.userId
         };
-        request({ url: url, method: 'PUT', json: params, function(err, res, body) {
+        request({ url: url, method: 'PUT', json: params}, function(err, res, body) {
                 if (!err && res.statusCode == 200) {
                     console.log("save flows to enebular");
                     resolve();
                 } else {
                     reject(err);
-                }   
-            }
-        });
+                }
+            });
     });
 }
 
@@ -194,7 +192,7 @@ var enebularstorage = {
         return getFlows();
     },
     saveFlows: function(flows) {
-        return saveFlows(flows);
+        return timeoutWrap(function() {return saveFlows(flows);});
     },
 
     getCredentials: function() {
