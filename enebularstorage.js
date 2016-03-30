@@ -42,18 +42,22 @@ function timeoutWrap(func) {
 
 function getEnebularFlow(cb) {
     var defer = when.defer();
-    var url = settings.enebularUrl + "/flows/"+settings.flowId+"?access_token=" + settings.accessToken;
-    request.get(
-        {url: url, json:false},
-        function (err, res, body) {
-            if (!err && res.statusCode == 200) {
-                var data = JSON.parse(body);
-                defer.resolve( JSON.parse(cb(data)) );
-            } else {
-                defer.reject(err);
+    if(settings.enebularUrl && settings.flowId) {
+        var url = settings.enebularUrl + "/flows/"+settings.flowId+"?access_token=" + settings.accessToken;
+        request.get(
+            {url: url, json:false},
+            function (err, res, body) {
+                if (!err && res.statusCode == 200) {
+                    var data = JSON.parse(body);
+                    defer.resolve( JSON.parse(cb(data)) );
+                } else {
+                    defer.reject(err);
+                }   
             }   
-        }   
-    );
+        );
+    }else{
+        defer.resolve( [] );
+    }
     return defer.promise;
 }
 

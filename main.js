@@ -5,7 +5,7 @@ restart();
 function restart(_envs) {
 	var envs = _envs || {};
 	envs.ISSUER = process.env.ISSUER;
-	envs.PORT = process.env.PORT;
+	envs.PORT = process.env.PORT || 1880;
 	var app = child_process.fork("./app", [], {env:envs});
 	app.on("message", function (msg) {
 	    if(msg.event == 'restart') {
