@@ -41,39 +41,39 @@ function timeoutWrap(func) {
 }
 
 function getEnebularFlow(cb) {
-    var defer = when.defer();
-    if(settings.enebularUrl && settings.flowId) {
-        var url = settings.enebularUrl + "/flows/"+settings.flowId+"?access_token=" + settings.accessToken;
-        request.get(
-            {url: url, json:false},
-            function (err, res, body) {
-                if (!err && res.statusCode == 200) {
-                    var data = JSON.parse(body);
-                    defer.resolve( JSON.parse(cb(data)) );
-                } else {
-                    defer.reject(err);
+    return when.promise(function(resolve,reject,notify) {
+        if(settings.enebularUrl && settings.flowId) {
+            var url = settings.enebularUrl + "/flows/"+settings.flowId+"?access_token=" + settings.accessToken;
+            request.get(
+                {url: url, json:false},
+                function (err, res, body) {
+                    if (!err && res.statusCode == 200) {
+                        var data = JSON.parse(body);
+                        resolve( JSON.parse(cb(data)) );
+                    } else {
+                        reject(err);
+                    }   
                 }   
-            }   
-        );
-    }else{
-        defer.resolve( [] );
-    }
-    return defer.promise;
+            );
+        }else{
+            resolve( [] );
+        }
+    });
 }
 
 function saveEnebularFlow(params) {
-    var defer = when.defer();
-    var url = settings.enebularUrl + "/flows/"+settings.flowId+"?access_token=" + settings.accessToken;
-    request({ url: url, method: 'PUT', json: params, function(err, res, body) {
-            if (!err && res.statusCode == 200) {
-                console.log("save flows to enebular");
-                defer.resolve();
-            } else {
-                defer.reject(err);
-            }   
-        }
+    return when.promise(function(resolve,reject,notify) {
+        var url = settings.enebularUrl + "/flows/"+settings.flowId+"?access_token=" + settings.accessToken;
+        request({ url: url, method: 'PUT', json: params, function(err, res, body) {
+                if (!err && res.statusCode == 200) {
+                    console.log("save flows to enebular");
+                    resolve();
+                } else {
+                    reject(err);
+                }   
+            }
+        });
     });
-    return defer.promise;
 }
 
 function getFlows() {
@@ -103,73 +103,73 @@ function saveCredentials(credentials) {
 }
 
 function getSettings () {
-    var defer = when.defer();
-    defer.resolve({});
-    return defer.promise;
+    return when.promise(function(resolve,reject,notify) {
+        resolve({});
+    });
 }
 
 function saveSettings (settings) {
-    var defer = when.defer();
-    defer.resolve();
-    return defer.promise;
+    return when.promise(function(resolve,reject,notify) {
+        resolve();
+    });
 }
 
 function getAllFlows() {
-    var defer = when.defer();
-    var url = settings.enebularUrl + "/projects/"+settings.projectId+"/flows?access_token=" + settings.accessToken;
-    request.get(
-        {url: url, json:false},
-        function (err, res, body) {
-            if (!err && res.statusCode == 200) {
-                var flows = JSON.parse(body);
-                defer.resolve({f:flows.map(function(f) {
-                    return f.id;
-                })});
-            } else {
-                defer.reject(err);
+    return when.promise(function(resolve,reject,notify) {
+        var url = settings.enebularUrl + "/projects/"+settings.projectId+"/flows?access_token=" + settings.accessToken;
+        request.get(
+            {url: url, json:false},
+            function (err, res, body) {
+                if (!err && res.statusCode == 200) {
+                    var flows = JSON.parse(body);
+                    resolve({f:flows.map(function(f) {
+                        return f.id;
+                    })});
+                } else {
+                    reject(err);
+                }   
             }   
-        }   
-    );
-    return defer.promise;
+        );
+    });
 }
 
 function getFlow(fn) {
-    var defer = when.defer();
-    var url = settings.enebularUrl + "/flows/"+fn+"?access_token=" + settings.accessToken;
-    request.get(
-        {url: url, json:false},
-        function (err, res, body) {
-            if (!err && res.statusCode == 200) {
-                var enebularFlow = JSON.parse(body);
-                defer.resolve(JSON.parse(enebularFlow.body));
-            } else {
-                defer.reject(err);
+    return when.promise(function(resolve,reject,notify) {
+        var url = settings.enebularUrl + "/flows/"+fn+"?access_token=" + settings.accessToken;
+        request.get(
+            {url: url, json:false},
+            function (err, res, body) {
+                if (!err && res.statusCode == 200) {
+                    var enebularFlow = JSON.parse(body);
+                    resolve(JSON.parse(enebularFlow.body));
+                } else {
+                    reject(err);
+                }   
             }   
-        }   
-    );
-    return defer.promise;
+        );
+    });
 }
 
 function saveFlow(fn,data) {
-    var defer = when.defer();
-    var url = settings.enebularUrl + "/flows/"+fn+"?access_token=" + settings.accessToken;
-    var params = {
-      "title": fn,
-      "description": "",
-      "body": data,
-      "tags": [],
-      "userId": settings.userId
-    };
-    request({ url: url, method: 'PUT', json: params, function(err, res, body) {
-            if (!err && res.statusCode == 200) {
-                console.log("save flows to enebular");
-                defer.resolve();
-            } else {
-                defer.reject(err);
-            }   
-        }
+    return when.promise(function(resolve,reject,notify) {
+        var url = settings.enebularUrl + "/flows/"+fn+"?access_token=" + settings.accessToken;
+        var params = {
+          "title": fn,
+          "description": "",
+          "body": data,
+          "tags": [],
+          "userId": settings.userId
+        };
+        request({ url: url, method: 'PUT', json: params, function(err, res, body) {
+                if (!err && res.statusCode == 200) {
+                    console.log("save flows to enebular");
+                    resolve();
+                } else {
+                    reject(err);
+                }   
+            }
+        });
     });
-    return defer.promise;
 }
 
 function getLibraryEntry(type,path) {
@@ -206,11 +206,11 @@ var enebularstorage = {
     },
 
     getSettings: function() {
-        return timeoutWrap(function() { return getSettings();});
+        return getSettings();
     },
 
     saveSettings: function(data) {
-        return timeoutWrap(function() { return saveSettings(data);});
+        return saveSettings(data);
     },
 
     getAllFlows: function() {
@@ -222,7 +222,7 @@ var enebularstorage = {
     },
 
     saveFlow: function(fn,data) {
-        return timeoutWrap(function() { return saveFlow(fn,data);});
+        return saveFlow(fn,data);
     },
 
     getLibraryEntry: function(type,path) {
