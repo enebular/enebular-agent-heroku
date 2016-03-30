@@ -9,9 +9,11 @@ function restart(_envs) {
 	var app = child_process.fork("./app", [], {env:envs});
 	app.on("message", function (msg) {
 	    if(msg.event == 'restart') {
-	    	app.kill();
 	    	setTimeout(function() {
-		    	restart(msg.envs);
+		    	app.kill();
+		    	setTimeout(function() {
+			    	restart(msg.envs);
+		    	}, 1000);
 	    	}, 1000);
 	    }
 	});
