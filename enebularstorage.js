@@ -198,11 +198,11 @@ var enebularstorage = {
     },
 
     getCredentials: function() {
-        return timeoutWrap(getCredentials);
+        return getCredentials();
     },
 
     saveCredentials: function(credentials) {
-        return timeoutWrap(function(){return saveCredentials(credentials);});
+        return saveCredentials(credentials);
     },
 
     getSettings: function() {
@@ -214,11 +214,11 @@ var enebularstorage = {
     },
 
     getAllFlows: function() {
-        return timeoutWrap(getAllFlows);
+        return getAllFlows();
     },
 
     getFlow: function(fn) {
-        return timeoutWrap(function() { return getFlow(fn);});
+        return getFlow(fn);
     },
 
     saveFlow: function(fn,data) {
