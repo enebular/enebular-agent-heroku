@@ -187,7 +187,7 @@ var enebularstorage = {
         settings = _settings;
     },
     getFlows: function() {
-        return timeoutWrap(getFlows);
+        return getFlows();
     },
     saveFlows: function(flows) {
         saveFlows(flows);

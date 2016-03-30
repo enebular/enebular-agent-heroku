@@ -33,3 +33,17 @@ var port = process.env.PORT || 1880;
 server.listen(port);
 
 RED.start();
+
+app.get("/sys/restart", function(req, res) {
+	var user_id = req.query.USER_ID;
+	var project_id = req.query.PROJECT_ID;
+	var flow_id = req.query.FLOW_ID;
+	var access_token = req.query.ACCESS_TOKEN;
+	process.send({event:"restart", envs:{
+		USER_ID: user_id,
+		PROJECT_ID: project_id,
+		FLOW_ID: flow_id,
+		ACCESS_TOKEN: access_token
+	}});
+	res.json({err:null});
+});
