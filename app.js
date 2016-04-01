@@ -34,17 +34,10 @@ server.listen(port);
 
 RED.start();
 
-app.post("/sys/restart", function(req, res) {
-	var user_id = req.body.USER_ID;
-	var project_id = req.body.PROJECT_ID;
-	var flow_id = req.body.FLOW_ID;
-	var access_token = req.body.ACCESS_TOKEN;
-	console.log(user_id, project_id, flow_id);
-	process.send({event:"restart", envs:{
-		USER_ID: user_id,
-		PROJECT_ID: project_id,
-		FLOW_ID: flow_id,
-		ACCESS_TOKEN: access_token
-	}});
-	res.json({err:null});
+app.get("/sys/envs", function(req, res) {
+	res.json({
+		user_id : process.env.USER_ID,
+		project_id : process.env.PROJECT_ID,
+		flow_id : process.env.FLOW_ID
+	});
 });
