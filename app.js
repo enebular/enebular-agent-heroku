@@ -35,6 +35,7 @@ server.listen(port);
 RED.start();
 
 app.get("/sys/envs", function(req, res) {
+	res.header("Access-Control-Allow-Origin", "*");
 	res.json({
 		user_id : process.env.USER_ID,
 		project_id : process.env.PROJECT_ID,
