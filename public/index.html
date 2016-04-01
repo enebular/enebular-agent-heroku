@@ -189,6 +189,27 @@
 <script src="vendor/ace/ace.js"></script>
 <script src="vendor/ace/ext-language_tools.js"></script>
 <script src="red/red.js"></script>
-
+<script>
+    window.addEventListener('load', function() {
+        checkLoop(function() {
+            RED.menu.removeItem('menu-item-import-library-submenu');
+            RED.menu.removeItem('menu-item-export-library');
+        });
+        function checkLoaded() {
+            var ver = document.getElementById('menu-item-node-red-version');
+            if(ver) return true;
+            return false;
+        }
+        function checkLoop(loaded) {
+            if(checkLoaded()) {
+                loaded();
+            }else{
+                setTimeout(function() {
+                    checkLoop(loaded);
+                }, 1000);
+            }
+        }
+    });
+</script>
 </body>
 </html>
