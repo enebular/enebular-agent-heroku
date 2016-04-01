@@ -40,7 +40,7 @@ function timeoutWrap(func) {
     });
 }
 
-function getEnebularFlow(cb) {
+function getEnebularFlow(key, defaultValue) {
     return when.promise(function(resolve,reject,notify) {
         if(settings.enebularUrl && settings.flowId) {
             var url = settings.enebularUrl + "/flows/"+settings.flowId+"?access_token=" + settings.accessToken;
@@ -49,14 +49,18 @@ function getEnebularFlow(cb) {
                 function (err, res, body) {
                     if (!err && res.statusCode == 200) {
                         var data = JSON.parse(body);
-                        resolve( JSON.parse(cb(data)) );
+                        if(data[key]) {
+                            resolve( JSON.parse(data[key]) );
+                        }else{
+                            resolve( defaultValue );
+                        }
                     } else {
                         reject(err);
                     }   
                 }   
             );
         }else{
-            resolve( [] );
+            resolve( defaultValue );
         }
     });
 }
@@ -76,9 +80,7 @@ function saveEnebularFlow(params) {
 }
 
 function getFlows() {
-    return getEnebularFlow(function(data) {
-        return (data.body);
-    });
+    return getEnebularFlow('body', []);
 }
 
 function saveFlows(flows) {
@@ -89,9 +91,7 @@ function saveFlows(flows) {
 }
 
 function getCredentials() {
-    return getEnebularFlow(function(data) {
-        return (data.cred);
-    });
+    return getEnebularFlow('cred', {});
 }
 
 function saveCredentials(credentials) {
