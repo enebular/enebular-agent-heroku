@@ -43,7 +43,7 @@ function timeoutWrap(func) {
 function getEnebularFlow(key, defaultValue) {
     return when.promise(function(resolve,reject,notify) {
         if(settings.enebularUrl && settings.flowId) {
-            var url = settings.enebularUrl + "/flows/"+settings.flowId+"?access_token=" + settings.accessToken;
+            var url = settings.enebularUrl + "/flow2s/"+settings.flowId+"?access_token=" + settings.accessToken;
             request.get(
                 {url: url, json:false},
                 function (err, res, body) {
@@ -67,7 +67,7 @@ function getEnebularFlow(key, defaultValue) {
 
 function saveEnebularFlow(params) {
     return when.promise(function(resolve,reject,notify) {
-        var url = settings.enebularUrl + "/flows/"+settings.flowId+"?access_token=" + settings.accessToken;
+        var url = settings.enebularUrl + "/flow2s/"+settings.flowId+"?access_token=" + settings.accessToken;
         request({ url: url, method: 'PUT', json: params}, function(err, res, body) {
                 if (!err && res.statusCode == 200) {
                     console.log("save flows to enebular");
@@ -115,7 +115,7 @@ function saveSettings (settings) {
 
 function getAllFlows() {
     return when.promise(function(resolve,reject,notify) {
-        var url = settings.enebularUrl + "/projects/"+settings.projectId+"/flows?access_token=" + settings.accessToken;
+        var url = settings.enebularUrl + "/projects/"+settings.projectId+"/flow2s?access_token=" + settings.accessToken;
         request.get(
             {url: url, json:false},
             function (err, res, body) {
@@ -134,7 +134,7 @@ function getAllFlows() {
 
 function getFlow(fn) {
     return when.promise(function(resolve,reject,notify) {
-        var url = settings.enebularUrl + "/flows/"+fn+"?access_token=" + settings.accessToken;
+        var url = settings.enebularUrl + "/flow2s/"+fn+"?access_token=" + settings.accessToken;
         request.get(
             {url: url, json:false},
             function (err, res, body) {
@@ -151,7 +151,7 @@ function getFlow(fn) {
 
 function saveFlow(fn,data) {
     return when.promise(function(resolve,reject,notify) {
-        var url = settings.enebularUrl + "/flows/"+fn+"?access_token=" + settings.accessToken;
+        var url = settings.enebularUrl + "/flow2s/"+fn+"?access_token=" + settings.accessToken;
         var params = {
           "title": fn,
           "description": "",
