@@ -23,7 +23,6 @@ app.all("/red/*", JWTAuth(public_key_path, {
   issuer: process.env.ISSUER
 }));
 
-app.use('/red', express.static('public'));
 app.set('view engine', 'ejs');
 
 RED.init(server, settings);
@@ -32,13 +31,21 @@ app.use(settings.httpNodeRoot, RED.httpNode);
 var port = process.env.PORT || 1880;
 server.listen(port);
 
-RED.start();
-
-app.get("/sys/envs", function(req, res) {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.json({
-		user_id : process.env.USER_ID,
-		project_id : process.env.PROJECT_ID,
-		flow_id : process.env.FLOW_ID
+if(process.env.USER_ID && process.env.PROJECT_ID && process.env.FLOW_ID) {
+	app.use('/red', express.static('public'));
+	RED.start();
+	app.get("/sys/envs", function(req, res) {
+		res.header("Access-Control-Allow-Origin", "*");
+		res.json({
+			user_id : process.env.USER_ID,
+			project_id : process.env.PROJECT_ID,
+			flow_id : process.env.FLOW_ID
+		});
 	});
-});
+}else{
+	app.get("/", handle);
+	app.get("/red", handle);
+	function handle(req, res) {
+		res.status(403).send("Forbidden");
+	}
+}
