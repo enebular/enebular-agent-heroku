@@ -31,7 +31,7 @@ app.use(settings.httpNodeRoot, RED.httpNode);
 var port = process.env.PORT || 1880;
 server.listen(port);
 
-if(process.env.USER_ID && process.env.PROJECT_ID && process.env.FLOW_ID) {
+if(process.env.USER_ID && process.env.PROJECT_ID) {
 	app.use('/red', express.static('public'));
 	RED.start();
 	app.get("/sys/envs", function(req, res) {

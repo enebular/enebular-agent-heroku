@@ -18,6 +18,7 @@ var request = require('request');
 var settings = require('./settings');
 var when = require('when');
 var util = require('util');
+var uuid = require('uuid');
 
 var settings;
 
@@ -42,7 +43,7 @@ function timeoutWrap(func) {
 
 function getEnebularFlow(key, defaultValue) {
     return when.promise(function(resolve,reject,notify) {
-        if(settings.enebularUrl && settings.flowId) {
+        if(settings.enebularUrl && settings.flowId!='new') {
             var url = settings.enebularUrl + "/flow2s/"+settings.flowId+"?access_token=" + settings.accessToken;
             request.get(
                 {url: url, json:false},
@@ -65,18 +66,39 @@ function getEnebularFlow(key, defaultValue) {
     });
 }
 
+var currentFlowId = null;
+
 function saveEnebularFlow(params) {
-    return when.promise(function(resolve,reject,notify) {
-        var url = settings.enebularUrl + "/flow2s/"+settings.flowId+"?access_token=" + settings.accessToken;
-        request({ url: url, method: 'PUT', json: params}, function(err, res, body) {
-                if (!err && res.statusCode == 200) {
-                    console.log("save flows to enebular");
-                    resolve();
-                } else {
-                    reject(err);
-                }
-            });
-    });
+    if(settings.flowId!='new' || currentFlowId) {
+        var flowId = currentFlowId || settings.flowId;
+        var url = settings.enebularUrl + "/flow2s/"+flowId+"?access_token=" + settings.accessToken;
+        return when.promise(function(resolve,reject,notify) {
+            request({ url: url, method: 'PUT', json: params}, function(err, res, body) {
+                    if (!err && res.statusCode == 200) {
+                        console.log("save flows to enebular");
+                        resolve();
+                    } else {
+                        reject(err);
+                    }
+                });
+        });
+    }else{
+        var url = settings.enebularUrl + "/projects/"+settings.projectId + "/flows?access_token=" + settings.accessToken;
+        var id = uuid();
+        params.id = id;
+        params.title = 'Untitled Flow';
+        currentFlowId = id;
+        return when.promise(function(resolve,reject,notify) {
+            request.post({ url: url, json: true, form: params}, function(err, res, body) {
+                    if (!err && res.statusCode == 200) {
+                        console.log("save flows to enebular");
+                        resolve();
+                    } else {
+                        reject(err);
+                    }
+                });
+        });
+    }
 }
 
 function getFlows() {
