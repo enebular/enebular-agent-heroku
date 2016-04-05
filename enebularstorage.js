@@ -87,6 +87,7 @@ function saveEnebularFlow(params) {
         var id = uuid();
         params.id = id;
         params.title = 'Untitled Flow';
+        params.userId = settings.userId;
         currentFlowId = id;
         return when.promise(function(resolve,reject,notify) {
             request.post({ url: url, json: true, form: params}, function(err, res, body) {
