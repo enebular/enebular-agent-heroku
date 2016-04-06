@@ -44,7 +44,7 @@ function timeoutWrap(func) {
 function getEnebularFlow(key, defaultValue) {
     return when.promise(function(resolve,reject,notify) {
         if(settings.enebularUrl && settings.flowId!='new') {
-            var url = settings.enebularUrl + "/flow2s/"+settings.flowId+"?access_token=" + settings.accessToken;
+            var url = settings.enebularUrl + "/FlowWorkspaces/"+settings.flowId+"?access_token=" + settings.accessToken;
             request.get(
                 {url: url, json:false},
                 function (err, res, body) {
@@ -71,7 +71,7 @@ var currentFlowId = null;
 function saveEnebularFlow(params) {
     if(settings.flowId!='new' || currentFlowId) {
         var flowId = currentFlowId || settings.flowId;
-        var url = settings.enebularUrl + "/flow2s/"+flowId+"?access_token=" + settings.accessToken;
+        var url = settings.enebularUrl + "/FlowWorkspaces/"+flowId+"?access_token=" + settings.accessToken;
         return when.promise(function(resolve,reject,notify) {
             request({ url: url, method: 'PUT', json: params}, function(err, res, body) {
                     if (!err && res.statusCode == 200) {
@@ -87,7 +87,6 @@ function saveEnebularFlow(params) {
         var id = uuid();
         params.id = id;
         params.title = 'Untitled Flow';
-        params.userId = settings.userId;
         currentFlowId = id;
         return when.promise(function(resolve,reject,notify) {
             request.post({ url: url, json: true, form: params}, function(err, res, body) {
@@ -138,7 +137,7 @@ function saveSettings (settings) {
 
 function getAllFlows() {
     return when.promise(function(resolve,reject,notify) {
-        var url = settings.enebularUrl + "/projects/"+settings.projectId+"/flow2s?access_token=" + settings.accessToken;
+        var url = settings.enebularUrl + "/projects/"+settings.projectId+"/flows?access_token=" + settings.accessToken;
         request.get(
             {url: url, json:false},
             function (err, res, body) {
@@ -157,7 +156,7 @@ function getAllFlows() {
 
 function getFlow(fn) {
     return when.promise(function(resolve,reject,notify) {
-        var url = settings.enebularUrl + "/flow2s/"+fn+"?access_token=" + settings.accessToken;
+        var url = settings.enebularUrl + "/FlowWorkspaces/"+fn+"?access_token=" + settings.accessToken;
         request.get(
             {url: url, json:false},
             function (err, res, body) {
@@ -174,7 +173,7 @@ function getFlow(fn) {
 
 function saveFlow(fn,data) {
     return when.promise(function(resolve,reject,notify) {
-        var url = settings.enebularUrl + "/flow2s/"+fn+"?access_token=" + settings.accessToken;
+        var url = settings.enebularUrl + "/FlowWorkspaces/"+fn+"?access_token=" + settings.accessToken;
         var params = {
           "title": fn,
           "description": "",
