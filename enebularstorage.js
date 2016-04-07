@@ -62,7 +62,7 @@ function getPackages(flows) {
     }, {});
 }
 
-function getEnebularFlow(key, defaultValue) {
+function getEnebularFlow(key, defaultValue, cb) {
     return when.promise(function(resolve,reject,notify) {
         if(settings.enebularUrl && settings.flowId!='new') {
             var url = settings.enebularUrl + "/FlowWorkspaces/"+settings.flowId+"?access_token=" + settings.accessToken;
@@ -72,6 +72,7 @@ function getEnebularFlow(key, defaultValue) {
                     if (!err && res.statusCode == 200) {
                         var data = JSON.parse(body);
                         if(data[key]) {
+                            if(cb) cb(data);
                             resolve( JSON.parse(data[key]) );
                         }else{
                             resolve( defaultValue );
@@ -123,7 +124,13 @@ function saveEnebularFlow(params) {
 }
 
 function getFlows() {
-    return getEnebularFlow('body', []);
+    return getEnebularFlow('body', [], function(data) {
+        for(var key in data.packages) {
+            RED.nodes.installModule(key).otherwise(function(err) {
+                
+            });
+        }
+    });
 }
 
 function saveFlows(flows) {
