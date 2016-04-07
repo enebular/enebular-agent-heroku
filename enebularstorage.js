@@ -19,6 +19,7 @@ var settings = require('./settings');
 var when = require('when');
 var util = require('util');
 var uuid = require('uuid');
+var RED = require('node-red/red/red');
 
 var settings;
 
@@ -39,6 +40,26 @@ function timeoutWrap(func) {
             }
         });
     });
+}
+
+function getPackages(flows) {
+    var nodeList = RED.nodes.getNodeList();
+    var types = nodeList.reduce(function(types, node) {
+      (node.types || []).forEach(function(type) {
+        types[type] = [ node.module, node.version ];
+      });
+      return types;
+    }, {});
+    return flows.reduce(function(packages, node) {
+      var modVer = types[node.type];
+      if (modVer) {
+        var module = modVer[0], version = modVer[1];
+        if (module !== 'node-red' && module !== 'node-red-node-aws-lambda-io') {
+          packages[module] = version;
+        }
+      }
+      return packages;
+    }, {});
 }
 
 function getEnebularFlow(key, defaultValue) {
@@ -107,7 +128,8 @@ function getFlows() {
 
 function saveFlows(flows) {
     var params = {
-      "body": JSON.stringify(flows)
+      "body": JSON.stringify(flows),
+      "packages": getPackages(flows)
     };
     return saveEnebularFlow(params);
 }
