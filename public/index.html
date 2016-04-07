@@ -24,6 +24,36 @@
 .enebular-logo img {
   height: 25px;
 }
+#header li.open .button {
+  background: #fff;
+  border-color: #fff;
+}
+#header .button:active, #header .button.active {
+  background: #fff;
+}
+#header ul.dropdown-menu {
+  background: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+#header ul.dropdown-menu li a {
+  color: #777;
+}
+#header ul.dropdown-menu > li:hover > a, #header ul.dropdown-menu > li:focus > a {
+  background: #f0f0f0 !important;
+}
+.dropdown-submenu > a::before {
+  border-right-color: #777;
+}
+.dropdown-menu * .fa-check-square {
+  color: #777;
+}
+.dropdown-submenu.disabled > a::before {
+  border-right-color: #ddd;
+}
+#header ul.dropdown-menu li.divider {
+  background: #eaeaea;
+  border-bottom-color: #f3f3f3;
+}
 </style>
 </head>
 <body spellcheck="false">

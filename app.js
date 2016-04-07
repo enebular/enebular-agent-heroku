@@ -23,6 +23,7 @@ app.all("/red/*", JWTAuth(public_key_path, {
   issuer: process.env.ISSUER
 }));
 
+app.use('/red', express.static('public'));
 app.set('view engine', 'ejs');
 
 RED.init(server, settings);
