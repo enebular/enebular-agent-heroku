@@ -23,14 +23,14 @@
 }
 .enebular-logo img {
   height: 25px;
-}	
+}
 </style>
 </head>
 <body spellcheck="false">
-<div id="header">
+<div id="header" style="background-color: #fff;">
     <span class="enebular-logo"><img src="enebular.png"></span>
     <ul class="header-toolbar hide">
-        <li><a id="btn-sidemenu" class="button" data-toggle="dropdown" href="#"><i class="fa fa-bars"></i></a></li>
+        <li><a id="btn-sidemenu" class="button" style="border-left: 2px solid #fff;border-right: 2px solid #fff;" data-toggle="dropdown" href="#"><i class="fa fa-bars"></i></a></li>
     <ul>
 </div>
 <div id="main-container" class="sidebar-closed hide">
@@ -196,7 +196,8 @@
             RED.menu.removeItem('menu-item-export-library');
         });
         function checkLoaded() {
-            var ver = document.getElementById('menu-item-node-red-version');
+            var ver = document.getElementById('menu-item-help');
+            console.log(ver);
             if(ver) return true;
             return false;
         }
