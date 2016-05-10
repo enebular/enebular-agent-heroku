@@ -1,5 +1,7 @@
 var fs = require('fs');
 var jwt = require('jsonwebtoken');
+var settings = require('./settings');
+
 
 module.exports = function(publicKeyPath, options) {
   var publicKey = fs.readFileSync(publicKeyPath, 'utf8');
@@ -22,7 +24,7 @@ module.exports = function(publicKeyPath, options) {
             }else{
               console.log('Verified identity=', identity);
               req.session.identity = identity;
-              res.redirect(req.path);
+              next();
             }
           });
       } else {

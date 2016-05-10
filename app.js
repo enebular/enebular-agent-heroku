@@ -19,6 +19,7 @@ app.use(session({ secret: '4r13ysgyYD' }));
 var JWTAuth = require('./jwt');
 
 var public_key_path = process.env.PUBLIC_KEY_PATH || './public.pem';
+
 app.all("/red/*", JWTAuth(public_key_path, {
   issuer: process.env.ISSUER
 }));
@@ -35,8 +36,9 @@ server.listen(port);
 if(process.env.USER_ID && process.env.PROJECT_ID) {
 	app.use('/red', express.static('public'));
 	RED.start();
-	app.get("/sys/envs", function(req, res) {
-		res.header("Access-Control-Allow-Origin", "*");
+	app.get("/red/envs", function(req, res) {
+	    res.header("Access-Control-Allow-Origin", settings.enebularHost);
+	    res.header("Access-Control-Allow-Credentials", true);
 		res.json({
 			user_id : process.env.USER_ID,
 			project_id : process.env.PROJECT_ID,

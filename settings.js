@@ -15,7 +15,8 @@ var settings = {
 
 if (process.env.ISSUER && process.env.USER_ID) {
   settings.storageModule = require('./enebularstorage');
-  settings.enebularUrl = process.env.ISSUER ? (process.env.ISSUER + '/api') : "http://localhost:7000/api";
+  settings.enebularHost = process.env.ISSUER || "http://localhost:7000";
+  settings.enebularUrl = settings.enebularHost + '/api';
   settings.userId = process.env.USER_ID;
   settings.projectId = process.env.PROJECT_ID;
   settings.flowId = process.env.FLOW_ID;
