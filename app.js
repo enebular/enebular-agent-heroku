@@ -34,7 +34,6 @@ var port = process.env.PORT || 1880;
 server.listen(port);
 
 if(process.env.USER_ID && process.env.PROJECT_ID) {
-	app.use('/red', express.static('public'));
 	RED.start();
 	app.get("/red/envs", function(req, res) {
 	    res.header("Access-Control-Allow-Origin", settings.enebularHost);
@@ -44,6 +43,9 @@ if(process.env.USER_ID && process.env.PROJECT_ID) {
 			project_id : process.env.PROJECT_ID,
 			flow_id : process.env.FLOW_ID
 		});
+	});
+	app.get("/red/setcookie", function(req, res) {
+		res.redirect(process.env.ISSUER + '/auth/spot/'+process.env.PROJECT_ID+'/'+process.env.FLOW_ID+'?setcookie=true');
 	});
 }else{
 	app.get("/", handle);
