@@ -69,17 +69,21 @@ function getEnebularFlow(key, defaultValue, cb) {
             request.get(
                 {url: url, json:false},
                 function (err, res, body) {
-                    if (!err && res.statusCode == 200) {
-                        var data = JSON.parse(body);
-                        if(data[key]) {
-                            if(cb) cb(data);
-                            resolve( JSON.parse(data[key]) );
-                        }else{
-                            resolve( defaultValue );
-                        }
-                    } else {
+                    if(err) {
                         reject(err);
-                    }   
+                        return;
+                    }
+                    if(res.statusCode != 200) {
+                        resolve( defaultValue );
+                        return;
+                    }
+                    var data = JSON.parse(body);
+                    if(data[key]) {
+                        if(cb) cb(data);
+                        resolve( JSON.parse(data[key]) );
+                    }else{
+                        resolve( defaultValue );
+                    }
                 }   
             );
         }else{
@@ -91,36 +95,32 @@ function getEnebularFlow(key, defaultValue, cb) {
 var currentFlowId = null;
 
 function saveEnebularFlow(params) {
-    if(settings.flowId!='new' || currentFlowId) {
-        var flowId = currentFlowId || settings.flowId;
-        var url = settings.enebularUrl + "/FlowWorkspaces/"+flowId+"?access_token=" + settings.accessToken;
-        return when.promise(function(resolve,reject,notify) {
-            request({ url: url, method: 'PUT', json: params}, function(err, res, body) {
-                    if (!err && res.statusCode == 200) {
-                        console.log("save flows to enebular");
-                        resolve();
-                    } else {
-                        reject(err);
-                    }
-                });
-        });
-    }else{
-        var url = settings.enebularUrl + "/projects/"+settings.projectId + "/flows?access_token=" + settings.accessToken;
-        var id = uuid();
-        params.id = id;
-        params.title = 'Untitled Flow';
-        currentFlowId = id;
-        return when.promise(function(resolve,reject,notify) {
-            request.post({ url: url, json: true, form: params}, function(err, res, body) {
-                    if (!err && res.statusCode == 200) {
-                        console.log("save flows to enebular");
-                        resolve();
-                    } else {
-                        reject(err);
-                    }
-                });
-        });
-    }
+    var flowId = settings.flowId;
+    var url = settings.enebularUrl + "/FlowWorkspaces/"+flowId+"?access_token=" + settings.accessToken;
+    return when.promise(function(resolve,reject,notify) {
+        request({ url: url, method: 'PUT', json: params}, function(err, res, body) {
+                if(err) {
+                    reject(err);
+                    return;
+                }
+                //404なら新規作成
+                if(res.statusCode == 404 && body.error.code == "MODEL_NOT_FOUND") {
+                    var url = settings.enebularUrl + "/projects/"+settings.projectId + "/flows?access_token=" + settings.accessToken;
+                    params.id = flowId;
+                    request.post({ url: url, json: true, form: params}, function(err, res, body) {
+                            if (!err && res.statusCode == 200) {
+                                console.log("create flows to enebular", flowId);
+                                resolve();
+                            } else {
+                                reject(err);
+                            }
+                        });
+                    return;
+                }
+                console.log("save flows to enebular", flowId);
+                resolve();
+            });
+    });
 }
 
 function getFlows() {
