@@ -15,7 +15,7 @@
     "express": "~4.x",
     "express-session": "^1.11.3",
     "jsonwebtoken": "^5.0.4",
-    "node-red": "^0.12.5",
+    "node-red": "^0.14.3",
     "node-red-contrib-admin": "0.0.4",
     "node-red-contrib-enebular": "file:./node-red-contrib-enebular",
     "node-red-contrib-metrics": "0.0.1",
