@@ -96,18 +96,21 @@ var currentFlowId = null;
 
 function saveEnebularFlow(params) {
     var flowId = settings.flowId;
-    var url = settings.enebularUrl + "/FlowWorkspaces/"+flowId+"?access_token=" + settings.accessToken;
+    var url = settings.enebularUrl + "/projects/"+settings.projectId + "/flows/"+flowId+"?access_token=" + settings.accessToken;
     return when.promise(function(resolve,reject,notify) {
         request({ url: url, method: 'PUT', json: params}, function(err, res, body) {
+                //console.log(1, err, body);
                 if(err) {
                     reject(err);
                     return;
                 }
+                //return
                 //404なら新規作成
-                if(res.statusCode == 404 && body.error.code == "MODEL_NOT_FOUND") {
+                if(res.statusCode == 404) {
                     var url = settings.enebularUrl + "/projects/"+settings.projectId + "/flows?access_token=" + settings.accessToken;
                     params.id = flowId;
                     request.post({ url: url, json: true, form: params}, function(err, res, body) {
+                            //console.log(2, err, body);
                             if (!err && res.statusCode == 200) {
                                 console.log("create flows to enebular", flowId);
                                 resolve();
