@@ -24,6 +24,7 @@
     "node-red-contrib-pubnub": "0.0.3",
     "node-red-contrib-slack": "^0.1.1",
     "node-red-contrib-td": "0.0.8",
+    "node-red-node-arduino": "0.0.9",
     "request": "^2.65.0",
     "uuid": "^2.0.1",
     "when": "~3.x"
