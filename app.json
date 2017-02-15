@@ -6,6 +6,14 @@
   "repository": "https://github.com/Uhuru-Corporation/enebular-oneoff-app.git",
   "logo": "https://avatars1.githubusercontent.com/u/8124914",
   "env": {
+    "USERNAME": {
+      "description": "username",
+      "value": "admin"
+    },
+    "PASSWORD": {
+      "description": "password",
+      "value": "password"
+    }
   },
   "addons": [ "mongolab" ]
 }
