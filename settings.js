@@ -40,7 +40,7 @@ if (process.env.ISSUER) {
   settings.projectId = process.env.PROJECT_ID;
   settings.flowId = process.env.FLOW_ID;
   settings.accessToken = process.env.ACCESS_TOKEN;
-  settings.mongoUrl = process.env.MONGO_URI || process.env.MONGOLAB_URI;
+  settings.mongoUrl = process.env.MONGODB_URI || process.env.MONGO_URI || process.env.MONGOLAB_URI;
   settings.mongoAppname = 'enebular';
 } else {
   settings.userDir = path.join(__dirname);
