@@ -1,0 +1,11 @@
+{
+  "name": "enebular-oneoff-app",
+  "description": "The enebular oneoff app is used to Data Management. For more about enebular see enebular.com.",
+  "keywords": [ "enebular", "IoT", "Internet of Things", "node.js", "node" ],
+  "website": "https://enebular.com/",
+  "repository": "https://github.com/Uhuru-Corporation/enebular-oneoff-app.git",
+  "logo": "https://avatars1.githubusercontent.com/u/8124914",
+  "env": {
+  },
+  "addons": [ "mongolab" ]
+}

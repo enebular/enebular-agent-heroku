@@ -1,4 +1,5 @@
 var path = require('path');
+var when = require("when");
 
 var settings = {
   debugMaxLength: 10000000,
@@ -10,6 +11,24 @@ var settings = {
   httpNodeCors: {
     origin: "*",
     methods: "GET,PUT,POST,DELETE"
+  },
+  adminAuth: {
+    type: "credentials",
+    users: function(username) {
+        if (process.env.USERNAME == username) {
+            return when.resolve({username:username,permissions:"*"});
+        } else {
+            return when.resolve(null);
+        }
+    },
+    authenticate: function(username, password) {
+        if (process.env.USERNAME == username &&
+            process.env.PASSWORD == password) {
+            return when.resolve({username:username,permissions:"*"});
+        } else {
+            return when.resolve(null);
+        }
+    }
   }
 };
 

@@ -16,6 +16,7 @@ app.use(bodyParser.urlencoded({
 
 app.use(session({ secret: '4r13ysgyYD' }));
 
+/*
 var JWTAuth = require('./jwt');
 
 var public_key_path = process.env.PUBLIC_KEY_PATH || './public.pem';
@@ -23,6 +24,7 @@ var public_key_path = process.env.PUBLIC_KEY_PATH || './public.pem';
 app.all("/red/*", JWTAuth(public_key_path, {
   issuer: process.env.ISSUER
 }));
+*/
 
 app.use('/red', express.static('public'));
 app.set('view engine', 'ejs');
