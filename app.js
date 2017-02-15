@@ -35,24 +35,4 @@ app.use(settings.httpNodeRoot, RED.httpNode);
 var port = process.env.PORT || 1880;
 server.listen(port);
 
-if(process.env.USER_ID && process.env.PROJECT_ID) {
-	RED.start();
-	app.get("/red/envs", function(req, res) {
-	    res.header("Access-Control-Allow-Origin", settings.enebularHost);
-	    res.header("Access-Control-Allow-Credentials", true);
-		res.json({
-			user_id : process.env.USER_ID,
-			project_id : process.env.PROJECT_ID,
-			flow_id : process.env.FLOW_ID
-		});
-	});
-	app.get("/red/setcookie", function(req, res) {
-		res.redirect(process.env.ISSUER + '/auth/spot/'+process.env.PROJECT_ID+'/'+process.env.FLOW_ID+'?setcookie=true');
-	});
-}else{
-	app.get("/", handle);
-	app.get("/red", handle);
-	function handle(req, res) {
-		res.status(403).send("Forbidden");
-	}
-}
+RED.start();
