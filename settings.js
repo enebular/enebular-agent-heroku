@@ -32,7 +32,7 @@ var settings = {
   }
 };
 
-if (process.env.ISSUER && process.env.USER_ID) {
+if (process.env.ISSUER) {
   settings.storageModule = require('./mongodbstorage');
   settings.enebularHost = process.env.ISSUER || "http://localhost:7000";
   settings.enebularUrl = settings.enebularHost + '/api';
