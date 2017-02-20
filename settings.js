@@ -35,12 +35,10 @@ var settings = {
 if (process.env.ISSUER) {
   settings.storageModule = require('./mongodbstorage');
   settings.enebularHost = process.env.ISSUER || "http://localhost:7000";
-  settings.enebularUrl = settings.enebularHost + '/api';
-  settings.userId = process.env.USER_ID;
-  settings.projectId = process.env.PROJECT_ID;
-  settings.flowId = process.env.FLOW_ID;
-  settings.accessToken = process.env.ACCESS_TOKEN;
-  settings.mongoUrl = process.env.MONGODB_URI || process.env.MONGO_URI || process.env.MONGOLAB_URI;
+  settings.enebularUrl = settings.enebularHost;
+  settings.secure_link = process.env.SECURE_LINK;
+  settings.flow_expired = Number(process.env.FLOW_EXPIRED);
+  settings.mongoUrl = process.env.MONGODB_URI || process.env.MONGO_URI || process.env.MONGOLAB_URI || 'mongodb://localhost:27017/enebular-heroku'
   settings.mongoAppname = 'enebular';
 } else {
   settings.userDir = path.join(__dirname);

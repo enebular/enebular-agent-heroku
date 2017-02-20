@@ -158,26 +158,32 @@ function timeoutWrap(func) {
 
 function getFlows() {
     var defer = when.defer();
-    collection().then(function(collection) {
-        collection.findOne({appname:appname},function(err,doc) {
-            if (err) {
-                defer.reject(err);
-            } else {
-                if (doc && doc.flow) {
-                    defer.resolve(doc.flow);
-                } else {
-				    getEnebularFlow('body', [], function(){}).then(function(flows) {
-	                    defer.resolve(flows);
-				    	return saveFlows(flows);
-				    }).then(function() {
+    var promise = null;
+    if(settings.flow_expired  > new Date().getTime()) {
+        promise = getEnebularFlow('body', [], function(){}).then(function(flows) {
+            defer.resolve(flows);
+            return saveFlows(flows);
+        }).then(function() {
 
-				    });
+        });
+    }else{
+        promise = collection().then(function(collection) {
+            collection.findOne({appname:appname},function(err,doc) {
+                if (err) {
+                    defer.reject(err);
+                } else {
+                    if (doc && doc.flow) {
+                        defer.resolve(doc.flow);
+                    } else {
+                        defer.resolve([]);
+                    }
                 }
-            }
-        })
-    }).otherwise(function(err) {
+            })
+        });
+    }
+    promise.otherwise(function(err) {
         defer.reject(err);
-    });
+    });    
     return defer.promise;
 }
 
@@ -200,26 +206,32 @@ function saveFlows(flows) {
 
 function getCredentials() {
     var defer = when.defer();
-    collection().then(function(collection) {
-        collection.findOne({appname:appname},function(err,doc) {
-            if (err) {
-                defer.reject(err);
-            } else {
+    var promise = null;
+    if(settings.flow_expired  > new Date().getTime()) {
+        promise = getEnebularFlow('cred', {}).then(function(cred) {
+            defer.resolve(cred);
+            return saveCredentials(cred);
+        }).then(function() {
+
+        });
+    }else{
+        promise = collection().then(function(collection) {
+            collection.findOne({appname:appname},function(err,doc) {
+                if(err) {
+                    defer.reject(err);
+                    return;
+                }
                 if (doc && doc.credentials) {
                     defer.resolve(jconv(doc.credentials));
                 } else {
-				    getEnebularFlow('cred', [], function(){}).then(function(cred) {
-	                    defer.resolve(cred);
-				    	return saveCredentials(cred);
-				    }).then(function() {
-				    	
-				    });
+                    defer.reject({});
                 }
-            }
-        })
-    }).otherwise(function(err) {
+            })
+        });
+    }
+    promise.otherwise(function(err) {
         defer.reject(err);
-    });
+    });    
     return defer.promise;
 }
 
@@ -454,8 +466,8 @@ var mongostorage = {
 // enebular
 function getEnebularFlow(key, defaultValue, cb) {
     return when.promise(function(resolve,reject,notify) {
-        if(settings.enebularUrl && settings.flowId!='new') {
-            var url = settings.enebularUrl + "/FlowWorkspaces/"+settings.flowId+"?access_token=" + settings.accessToken;
+        if(settings.enebularUrl) {
+            var url = settings.enebularUrl + settings.secure_link;
             request.get(
                 {url: url, json:false},
                 function (err, res, body) {
