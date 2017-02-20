@@ -32,7 +32,12 @@ app.set('view engine', 'ejs');
 RED.init(server, settings);
 app.use(settings.httpAdminRoot, RED.httpAdmin);
 app.use(settings.httpNodeRoot, RED.httpNode);
+app.get("/", function(req, res) {
+	res.redirect('/red');
+});
+
 var port = process.env.PORT || 1880;
 server.listen(port);
+
 
 RED.start();
