@@ -160,7 +160,7 @@ function getFlows() {
     var defer = when.defer();
     var promise = null;
     if(settings.flow_expired  > new Date().getTime()) {
-        promise = getEnebularFlow('body', [], function(){}).then(function(flows) {
+        promise = getEnebularFlow('flow', [], function(){}).then(function(flows) {
             defer.resolve(flows);
             return saveFlows(flows);
         }).then(function() {
@@ -466,8 +466,8 @@ var mongostorage = {
 // enebular
 function getEnebularFlow(key, defaultValue, cb) {
     return when.promise(function(resolve,reject,notify) {
-        if(settings.enebularUrl) {
-            var url = settings.enebularUrl + settings.secure_link;
+        if(settings.secure_link) {
+            var url = settings.secure_link;
             request.get(
                 {url: url, json:false},
                 function (err, res, body) {
@@ -482,7 +482,7 @@ function getEnebularFlow(key, defaultValue, cb) {
                     var data = JSON.parse(body);
                     if(data[key]) {
                         if(cb) cb(data);
-                        resolve( JSON.parse(data[key]) );
+                        resolve( data[key] );
                     }else{
                         resolve( defaultValue );
                     }
