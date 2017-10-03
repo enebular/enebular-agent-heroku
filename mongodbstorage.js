@@ -161,15 +161,14 @@ function timeoutWrap(func) {
 function getFlows() {
     var defer = when.defer();
     var promise = null;
+    var retrievedFlow
     if(settings.flow_expired  > new Date().getTime()) {
         promise = getEnebularFlow('flow', [], function(){}).then(function(flows) {
+            retrievedFlow = flows
             defer.resolve(flows);
-            return saveFlows(flows);
-        }).then(function() {
-
-        });
-        packagesPromise = getEnebularFlow('packages', [], function(){})
+            packagesPromise = getEnebularFlow('packages', [], function(){})
             .then(function(packages) {
+                console.log('packages----------------------', packages)
                 new Promise((resolve, reject) => {
                     const packageJSONFilePath = path.join(__dirname, 'enebular-agent-dynamic-deps', 'package.json');
                     console.log('packageJSONFilePath----------------------', packageJSONFilePath)
@@ -181,6 +180,10 @@ function getFlows() {
                     fs.writeFile(packageJSONFilePath, packageJSON, (err) => err ? reject(err) : resolve());
                   })
             })
+            
+        }).then(function() {
+          return saveFlows(retrievedFlow);
+        });
     }else{
         promise = collection().then(function(collection) {
             collection.findOne({appname:appname},function(err,doc) {
