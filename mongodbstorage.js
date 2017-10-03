@@ -499,7 +499,7 @@ function getEnebularFlow(key, defaultValue, cb) {
                     var data = JSON.parse(body);
                     if(data[key] && key === 'flow') {
                         if(cb) cb(data);
-                        var flows = data[key]
+                        var flows = data['flows']
                         var packages = data['packages']
                         resolve( { flows: flows, packages: packages });
                     } else if (data[key] && key === 'cred') {
