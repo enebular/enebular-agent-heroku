@@ -14,6 +14,7 @@
     "ejs": "^2.3.4",
     "express": "~4.x",
     "express-session": "^1.11.3",
+    "enebular-agent-dynamic-deps": "file:./enebular-agent-dynamic-deps",
     "jsonwebtoken": "^5.0.4",
     "mongodb": "^2.2.24",
     "node-red": "^0.13.x",

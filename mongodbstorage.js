@@ -14,6 +14,8 @@
  * limitations under the License.
  **/
 
+var fs = require('fs');
+var path = require('path');
 var request = require('request');
 var mongo = require('mongodb');
 var when = require('when');
@@ -166,6 +168,19 @@ function getFlows() {
         }).then(function() {
 
         });
+        packagesPromise = getEnebularFlow('packages', [], function(){})
+            .then(function(packages) {
+                new Promise((resolve, reject) => {
+                    const packageJSONFilePath = path.join(__dirname, 'enebular-agent-dynamic-deps', 'package.json');
+                    console.log('packageJSONFilePath----------------------', packageJSONFilePath)
+                    const packageJSON = JSON.stringify({
+                      name: 'enebular-agent-dynamic-deps',
+                      version: '0.0.1',
+                      dependencies: packages
+                    }, null, 2);
+                    fs.writeFile(packageJSONFilePath, packageJSON, (err) => err ? reject(err) : resolve());
+                  })
+            })
     }else{
         promise = collection().then(function(collection) {
             collection.findOne({appname:appname},function(err,doc) {
