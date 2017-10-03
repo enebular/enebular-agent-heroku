@@ -498,6 +498,8 @@ function getEnebularFlow(key, defaultValue, cb) {
                         return;
                     }
                     var data = JSON.parse(body);
+                    console.log('data----------------------', data)
+                    
                     if(data[key]) {
                         if(cb) cb(data);
                         resolve( data[key] );
