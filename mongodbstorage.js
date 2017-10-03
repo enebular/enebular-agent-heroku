@@ -168,7 +168,7 @@ function getFlows () {
       .then(function (flows) {
         retrievedFlow = flows
         defer.resolve(flows)
-        getEnebularFlow('packages', [], function () {})
+        return getEnebularFlow('packages', [], function () {})
           .then(function (packages) {
             console.log('packages----------------------', packages)
             return new Promise((resolve, reject) => {
@@ -180,12 +180,22 @@ function getFlows () {
                 dependencies: packages
               }, null, 2)
               console.log('packageJSON----------------------', packageJSON)
-              fs.writeFile(packageJSONFilePath, packageJSON, (err) => err ? reject(err) : resolve())
+              fs.writeFile(packageJSONFilePath, packageJSON, (err) => {
+                if (err) {
+                  console.error('err', err)
+                  return reject(err)
+                }
+                return resolve()
+              })
             })
           })
           .then(function () {
             defer2.resolve({})
             return saveFlows(retrievedFlow)
+          })
+          .catch(err => {
+            console.log('catch----------------------', err)
+            return err
           })
       })
   } else {
