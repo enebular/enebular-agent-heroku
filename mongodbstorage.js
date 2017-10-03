@@ -172,6 +172,7 @@ function getFlows() {
             .then(function(packages) {
                 new Promise((resolve, reject) => {
                     const packageJSONFilePath = path.join(__dirname, 'enebular-agent-dynamic-deps', 'package.json');
+                    console.log('packageJSONFilePath----------------------', packageJSONFilePath)
                     const packageJSON = JSON.stringify({
                       name: 'enebular-agent-dynamic-deps',
                       version: '0.0.1',
