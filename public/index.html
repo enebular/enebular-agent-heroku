@@ -30,23 +30,21 @@
 <link rel="stylesheet" href="vendor/vendor.css">
 <link rel="stylesheet" href="red/style.min.css">
 <style>
+html,
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  color: #535B5F;
+}
 .enebular-logo {
   pointer-events: none;
-  float: left;
-  margin-top: 5px;
-  font-size: 30px;
-  line-height: 30px;
+  
   text-decoration: none;
 }
 .enebular-logo img {
-  height: 25px;
+    margin-top: 8px;
+    width: 6.5rem;
 }
-#header .button {
-  border-color: #fff;
-}
-#header .button:hover {
-  border-color: #fff;
-}
+.bg-gradient { background: linear-gradient(-10deg, #515151 0%, #000 100%); }
 #header li.open .button {
   background: #fff;
   border-color: #fff;
@@ -83,8 +81,8 @@
 </style>
 </head>
 <body spellcheck="false">
-<div id="header" style="background-color: #fff;">
-    <span class="enebular-logo"><img src="enebular.png"></span>
+<div id="header" style="bg-gradient">
+    <span class="enebular-logo"><img src="enebular.svg"></span>
     <ul class="header-toolbar hide">
         <li><a id="btn-sidemenu" class="button" style="border-left: 2px solid #fff;border-right: 2px solid #fff;" data-toggle="dropdown" href="#"><i class="fa fa-bars"></i></a></li>
     <ul>
