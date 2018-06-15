@@ -25,16 +25,6 @@ var settings
 var mongodb
 var appname
 
-//var heartBeatLastSent = (new Date()).getTime();
-//
-//setInterval(function () {
-//    var now = (new Date()).getTime();
-//    if (mongodb && now - heartBeatLastSent > 15000) {
-//        heartBeatLastSent = now;
-//        mongodb.command({ ping: 1}, function (err, result) {});
-//    }
-//}, 15000);
-
 function jconv(credentials) {
   var jconvs = {}
   for (id in credentials) {
@@ -202,7 +192,6 @@ function getFlows() {
 }
 
 function saveFlows(flows) {
-  console.log('saveFlows')
   var defer = when.defer()
   collection()
     .then(function(collection) {
@@ -265,11 +254,11 @@ function saveCredentials(credentials) {
         { $set: { credentials: bconv(credentials) } },
         { upsert: true },
         function(err) {
-          if (err) {
-            defer.reject(err)
-          } else {
-            defer.resolve()
-          }
+          // if (err) {
+          //   defer.reject(err)
+          // } else {
+          defer.resolve()
+          // }
         }
       )
     })
@@ -384,6 +373,20 @@ function getFlow(fn) {
   return defer.promise
 }
 
+function mapNodeTypes(flows, credentials) {
+  // extract credential type from flows
+  for (let props in credentials) {
+    for (let i = 0; i < flows.length; i++) {
+      const item = flows[i]
+      if (item.id === props) {
+        credentials[props].type = item.type
+        break
+      }
+    }
+  }
+  return credentials
+}
+
 function saveFlow(fn, data) {
   var defer = when.defer()
   libCollection()
@@ -488,6 +491,9 @@ var mongostorage = {
     settings = _settings
     appname = settings.mongoAppname || require('os').hostname()
     return db()
+  },
+  mapNodeTypes: function(flows, credentials) {
+    return credentials
   },
   getFlows: function() {
     return timeoutWrap(getFlows)
