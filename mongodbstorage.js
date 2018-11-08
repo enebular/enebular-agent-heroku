@@ -18,7 +18,7 @@ var request = require('request')
 var mongo = require('mongodb')
 var when = require('when')
 var util = require('util')
-var RED = require('e-node-red')
+var RED = require('@uhuru/enebular-node-red')
 
 var settings
 

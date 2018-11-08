@@ -7,8 +7,13 @@
   "scripts": {
     "start": "node app"
   },
+  "engines": {
+    "node": "8.12.0",
+    "npm": "6.0.0"
+  },
   "files": [],
   "dependencies": {
+    "@uhuru/enebular-node-red": "enebular/enebular-node-red",
     "bcryptjs": "~2.x",
     "body-parser": "^1.14.0",
     "ejs": "^2.3.4",
@@ -16,7 +21,6 @@
     "express-session": "^1.11.3",
     "jsonwebtoken": "^5.0.4",
     "mongodb": "^2.2.24",
-    "e-node-red": "github:enebular/enebular-node-red",
     "node-red-contrib-admin": "0.0.5",
     "node-red-contrib-enebular": "file:./node-red-contrib-enebular",
     "node-red-contrib-metrics": "0.0.1",
