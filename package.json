@@ -1,6 +1,6 @@
 {
   "name": "enebular-spot-app",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "",
   "main": "app.js",
@@ -8,8 +8,8 @@
     "start": "node app"
   },
   "engines": {
-    "node": "12.13.0",
-    "npm": "6.12.0"
+    "node": "12.14.0",
+    "npm": "6.13.4"
   },
   "files": [],
   "dependencies": {
