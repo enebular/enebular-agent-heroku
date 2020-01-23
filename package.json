@@ -28,7 +28,7 @@
     "node-red-contrib-pubnub": "0.0.3",
     "node-red-contrib-slack": "^2.0.0",
     "node-red-contrib-td": "0.0.8",
-    "node-red-contrib-usbx": "https://enebular-test-test.s3.amazonaws.com/node-red-contrib-usbx-1.0.1.tgz",
+    "node-red-contrib-usbx": "https://pifaa-node-poc.s3-ap-northeast-1.amazonaws.com/node-red-contrib-usbx-0.0.1.tgz",
     "request": "^2.65.0",
     "uuid": "^2.0.1",
     "when": "~3.x"
