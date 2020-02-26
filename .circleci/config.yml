@@ -17,9 +17,6 @@ jobs: # a collection of steps
 
 workflows:
   version: 2
-  issue-14:
+  ev2-nodejs12:
     jobs:
       - clamav
-  # ev2-nodejs12:
-  #   jobs:
-  #     - clamav
