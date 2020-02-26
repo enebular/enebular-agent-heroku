@@ -20,6 +20,6 @@ workflows:
   issue-14:
     jobs:
       - clamav
-  ev2-nodejs12:
-    jobs:
-      - clamav
+  # ev2-nodejs12:
+  #   jobs:
+  #     - clamav
