@@ -12,9 +12,11 @@ var server = http.createServer(app)
 
 app.use(
   bodyParser.urlencoded({
-    extended: true
+    extended: true,
+    limit: '10mb',
   })
 )
+app.use(bodyParser.json({ extended: true, limit: '10mb' }))
 
 app.use(session({ secret: '4r13ysgyYD' }))
 
@@ -34,7 +36,7 @@ app.set('view engine', 'ejs')
 RED.init(server, settings)
 app.use(settings.httpAdminRoot, RED.httpAdmin)
 app.use(settings.httpNodeRoot, RED.httpNode)
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
   res.redirect('/red')
 })
 
