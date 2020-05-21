@@ -13,7 +13,7 @@
   },
   "files": [],
   "dependencies": {
-    "@uhuru/enebular-node-red": "1.0.5-alpha.5",
+    "@uhuru/enebular-node-red": "file:./enebular-node-red-1.0",
     "bcryptjs": "~2.x",
     "body-parser": "^1.14.0",
     "ejs": "^2.3.4",
