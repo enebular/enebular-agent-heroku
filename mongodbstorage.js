@@ -19,6 +19,7 @@ var mongo = require('mongodb')
 var when = require('when')
 var util = require('util')
 var RED = require('@uhuru/enebular-node-red')
+var fs = require('fs')
 
 var settings
 
@@ -51,8 +52,8 @@ function bconv(credentials) {
   return bconvs
 }
 
-function db() {
-  return when.promise(function(resolve, reject, notify) {
+const db = async () => {
+  return new Promise((resolve, reject) => {
     if (!mongodb) {
       mongo.MongoClient.connect(
         settings.mongoUrl,
@@ -70,7 +71,7 @@ function db() {
             }
           }
         },
-        function(err, _db) {
+        (err, _db) => {
           if (err) {
             util.log('Mongo DB error:' + err)
             reject(err)
@@ -86,54 +87,53 @@ function db() {
   })
 }
 
-function collection() {
-  return when.promise(function(resolve, reject, notify) {
-    db()
-      .then(function(db) {
-        db.collection(settings.mongoCollection || 'nodered', function(
-          err,
-          _collection
-        ) {
-          if (err) {
-            util.log('Mongo DB error:' + err)
-            reject(err)
-          } else {
-            resolve(_collection)
-          }
-        })
-      })
-      .otherwise(function(err) {
-        reject(err)
-      })
-  })
+const getCollection = async (connectionName) => {
+  const db = await db()
+  db.collection(
+    settings.mongoCollection || connectionName,
+    (err, _collection) => {
+      if (err) {
+        util.log('Mongo DB error:' + err)
+        throw err
+      } else {
+        return _collection
+      }
+    }
+  )
 }
 
-function libCollection() {
-  return when.promise(function(resolve, reject, notify) {
-    db()
-      .then(function(db) {
-        db.collection(settings.mongoCollection || 'nodered' + '-lib', function(
-          err,
-          _collection
-        ) {
-          if (err) {
-            util.log('Mongo DB error:' + err)
-            reject(err)
-          } else {
-            resolve(_collection)
-          }
-        })
-      })
-      .otherwise(function(err) {
+const collection = async () => {
+  return getCollection('nodered')
+}
+
+const libCollection = async () => {
+  return getCollection('nodered' + '-lib')
+}
+
+const privateNodeCollection = async () => {
+  return getCollection('nodered' + '-privatenode')
+}
+
+const removePrivateNodeCollection = async () => {
+  let collection = await privateNodeCollection()
+  await new Promise((resolve, reject) => {
+    collection.drop((err, delOK) => {
+      if (err) {
         reject(err)
-      })
+      } else {
+        if (delOK) {
+          console.log('Collection deleted')
+          resolve()
+        }
+      }
+    })
   })
 }
 
 function close() {
-  return when.promise(function(resolve, reject, notify) {
+  return when.promise(function (resolve, reject, notify) {
     if (mongodb) {
-      mongodb.close(true, function(err, result) {
+      mongodb.close(true, function (err, result) {
         if (err) {
           util.log('Mongo DB error:' + err)
           reject(err)
@@ -147,20 +147,20 @@ function close() {
 }
 
 function timeoutWrap(func) {
-  return when.promise(function(resolve, reject, notify) {
+  return when.promise(function (resolve, reject, notify) {
     var promise = func().timeout(5000, 'timeout')
-    promise.then(function(a, b, c, d) {
+    promise.then(function (a, b, c, d) {
       //heartBeatLastSent = (new Date()).getTime();
       resolve(a, b, c, d)
     })
-    promise.otherwise(function(err) {
+    promise.otherwise(function (err) {
       console.log('TIMEOUT: ', func.name)
       if (err == 'timeout') {
         close()
-          .then(function() {
+          .then(function () {
             resolve(func())
           })
-          .otherwise(function(err) {
+          .otherwise(function (err) {
             reject(err)
           })
       } else {
@@ -170,250 +170,159 @@ function timeoutWrap(func) {
   })
 }
 
-function getFlows() {
-  var defer = when.defer()
-  var promise = null
-  if (settings.flow_expired > new Date().getTime()) {
-    promise = getEnebularFlow('flow', [], function() {})
-      .then(function(flows) {
-        defer.resolve(flows)
-        return saveFlows(flows)
-      })
-      .then(function() {})
-  } else {
-    promise = collection().then(function(collection) {
-      collection.findOne({ appname: appname }, function(err, doc) {
-        if (err) {
-          defer.reject(err)
-        } else {
-          if (doc && doc.flow) {
-            defer.resolve(doc.flow)
-          } else {
-            defer.resolve([])
-          }
-        }
-      })
+const getCollectionData = async () => {
+  let collection = await collection()
+  let flowData = await new Promise((resolve, reject) => {
+    collection.findOne({ appname: appname }, function (err, doc) {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(doc)
+      }
     })
-  }
-  promise.otherwise(function(err) {
-    defer.reject(err)
   })
-  return defer.promise
+  return flowData
+}
+
+function getFlows() {
+  console.log('getFlows')
+  return when.promise(async (resolve, reject, notify) => {
+    try {
+      let secureLinkSame = await isSecureLinkSame()
+      if (!secureLinkSame) {
+        await prepareEnebularFlow()
+      }
+      const data = await getCollectionData()
+      if (data && data.packages) {
+        await installPackages(data.packages)
+      }
+      if (data && dattat.flow) {
+        resolve(data.flow)
+      } else {
+        resolve([])
+      }
+    } catch (err) {
+      reject(err)
+    }
+  })
 }
 
 function saveFlows(flows) {
   console.log('saveFlows')
-  var defer = when.defer()
-  collection()
-    .then(function(collection) {
-      collection.update(
-        { appname: appname },
-        { $set: { appname: appname, flow: flows } },
-        { upsert: true },
-        function(err) {
-          if (err) {
-            defer.reject(err)
-          } else {
-            defer.resolve()
-          }
-        }
-      )
-    })
-    .otherwise(function(err) {
-      defer.reject(err)
-    })
-  return defer.promise
+  return when.promise(async (resolve, reject, notify) => {
+    try {
+      await saveDataToMongoDBCollection({ appname, flow: flows })
+      let secureLink = process.env.SECURE_LINK
+      await saveDataToMongoDBCollection({ secureLink })
+      resolve()
+    } catch (err) {
+      reject(err)
+    }
+  })
 }
 
 function getCredentials() {
-  var defer = when.defer()
-  var promise = null
-  if (settings.flow_expired > new Date().getTime()) {
-    promise = getEnebularFlow('cred', {})
-      .then(function(cred) {
-        defer.resolve(cred)
-        return saveCredentials(cred)
-      })
-      .then(function() {})
-  } else {
-    promise = collection().then(function(collection) {
-      collection.findOne({ appname: appname }, function(err, doc) {
-        if (err) {
-          defer.reject(err)
-          return
-        }
-        if (doc && doc.credentials) {
-          defer.resolve(jconv(doc.credentials))
-        } else {
-          defer.reject({})
-        }
-      })
-    })
-  }
-  promise.otherwise(function(err) {
-    defer.reject(err)
+  console.log('getCredentials')
+  return when.promise(async (resolve, reject, notify) => {
+    try {
+      const data = await getCollectionData()
+      if (data && data.credentials) {
+        resolve(jconv(data.credentials))
+      } else {
+        reject({})
+      }
+    } catch (err) {
+      reject(err)
+    }
   })
-  return defer.promise
 }
 
 function saveCredentials(credentials) {
-  var defer = when.defer()
-  collection()
-    .then(function(collection) {
-      collection.update(
-        { appname: appname },
-        { $set: { credentials: bconv(credentials) } },
-        { upsert: true },
-        function(err) {
-          if (err) {
-            defer.reject(err)
-          } else {
-            defer.resolve()
-          }
-        }
-      )
-    })
-    .otherwise(function(err) {
-      defer.reject(err)
-    })
-  return defer.promise
+  console.log('saveCredentials')
+  return when.promise(async (resolve, reject, notify) => {
+    try {
+      await saveDataToMongoDBCollection({
+        appname,
+        credentials: bconv(credentials)
+      })
+      resolve()
+    } catch (err) {
+      reject(err)
+    }
+  })
 }
 
 function getSettings() {
-  var defer = when.defer()
-  collection()
-    .then(function(collection) {
-      collection.findOne({ appname: appname }, function(err, doc) {
-        if (err) {
-          defer.reject(err)
-        } else {
-          if (doc && doc.settings) {
-            defer.resolve(jconv(doc.settings))
-          } else {
-            defer.resolve({})
-          }
-        }
-      })
-    })
-    .otherwise(function(err) {
+  console.log('getSettings')
+  return when.promise(async (resolve, reject, notify) => {
+    try {
+      const data = await getCollectionData()
+      if (data && data.settings) {
+        defer.resolve(jconv(doc.settings))
+      } else {
+        defer.resolve({})
+      }
+    } catch (err) {
       defer.reject(err)
-    })
-  return defer.promise
+    }
+  })
 }
 
 function saveSettings(settings) {
-  var defer = when.defer()
-  collection()
-    .then(function(collection) {
-      collection.update(
-        { appname: appname },
-        { $set: { settings: bconv(settings) } },
-        { upsert: true },
-        function(err) {
-          if (err) {
-            console.log(err)
-            defer.reject(err)
-          } else {
-            defer.resolve()
-          }
-        }
-      )
-    })
-    .otherwise(function(err) {
+  console.log('saveSettings')
+  return when.promise(async (resolve, reject, notify) => {
+    try {
+      await saveDataToMongoDBCollection({
+        appname,
+        settings: bconv(settings)
+      })
+      defer.resolve()
+    } catch (err) {
       defer.reject(err)
-    })
-  return defer.promise
+    }
+  })
 }
 
-function getAllFlows() {
-  var defer = when.defer()
-  libCollection()
-    .then(function(libCollection) {
-      libCollection
-        .find({ appname: appname, type: 'flow' }, { sort: 'path' })
-        .toArray(function(err, docs) {
-          if (err) {
-            defer.reject(err)
-          } else if (!docs) {
-            defer.resolve({})
-          } else {
-            var result = {}
-            for (var i = 0; i < docs.length; i++) {
-              var doc = docs[i]
-              var path = doc.path
-              var parts = path.split('/')
-              var ref = result
-              for (var j = 0; j < parts.length - 1; j++) {
-                ref['d'] = ref['d'] || {}
-                ref['d'][parts[j]] = ref['d'][parts[j]] || {}
-                ref = ref['d'][parts[j]]
-              }
-              ref['f'] = ref['f'] || []
-              ref['f'].push(parts.slice(-1)[0])
+const saveDataToMongoDBCollection = async (data) => {
+  return new Promise((resolve, reject) => {
+    data['appname'] = appname
+    collection()
+      .then(function (collection) {
+        collection.update(
+          { appname: appname },
+          { $set: data },
+          { upsert: true },
+          (err) => {
+            if (err) {
+              reject(err)
+            } else {
+              resolve()
             }
-            defer.resolve(result)
           }
-        })
-    })
-    .otherwise(function(err) {
-      defer.reject(err)
-    })
-  return defer.promise
+        )
+      })
+      .otherwise((err) => {
+        reject(err)
+      })
+  })
 }
 
-function getFlow(fn) {
-  var defer = when.defer()
-  libCollection()
-    .then(function(libCollection) {
-      libCollection.findOne(
-        { appname: appname, type: 'flow', path: fn },
-        function(err, doc) {
-          if (err) {
-            defer.reject(err)
-          } else if (doc && doc.data) {
-            defer.resolve(doc.data)
-          } else {
-            defer.reject()
-          }
-        }
-      )
-    })
-    .otherwise(function(err) {
-      defer.reject(err)
-    })
-  return defer.promise
-}
-
-function saveFlow(fn, data) {
-  var defer = when.defer()
-  libCollection()
-    .then(function(libCollection) {
-      libCollection.update(
-        { appname: appname, type: 'flow', path: fn },
-        { appname: appname, type: 'flow', path: fn, data: data },
-        { upsert: true },
-        function(err) {
-          if (err) {
-            defer.reject(err)
-          } else {
-            defer.resolve()
-          }
-        }
-      )
-    })
-    .otherwise(function(err) {
-      defer.reject(err)
-    })
-  return defer.promise
+const isSecureLinkSame = async () => {
+  let doc = await getCollectionData()
+  if (doc && doc.secureLink && doc.secureLink === process.env.secure_link) {
+    return true
+  } else {
+    return false
+  }
 }
 
 function getLibraryEntry(type, path) {
   var defer = when.defer()
   libCollection()
-    .then(function(libCollection) {
+    .then(function (libCollection) {
       libCollection.findOne(
         { appname: appname, type: type, path: path },
-        function(err, doc) {
+        function (err, doc) {
           if (err) {
             defer.reject(err)
           } else if (doc) {
@@ -427,7 +336,7 @@ function getLibraryEntry(type, path) {
                 { appname: appname, type: type, path: { $regex: path + '.*' } },
                 { sort: 'path' }
               )
-              .toArray(function(err, docs) {
+              .toArray(function (err, docs) {
                 if (err) {
                   defer.reject(err)
                 } else if (!docs) {
@@ -454,7 +363,7 @@ function getLibraryEntry(type, path) {
         }
       )
     })
-    .otherwise(function(err) {
+    .otherwise(function (err) {
       defer.reject(err)
     })
   return defer.promise
@@ -463,12 +372,12 @@ function getLibraryEntry(type, path) {
 function saveLibraryEntry(type, path, meta, body) {
   var defer = when.defer()
   libCollection()
-    .then(function(libCollection) {
+    .then(function (libCollection) {
       libCollection.update(
         { appname: appname, type: type, path: path },
         { appname: appname, type: type, path: path, meta: meta, data: body },
         { upsert: true },
-        function(err) {
+        function (err) {
           if (err) {
             defer.reject(err)
           } else {
@@ -477,110 +386,218 @@ function saveLibraryEntry(type, path, meta, body) {
         }
       )
     })
-    .otherwise(function(err) {
+    .otherwise(function (err) {
       defer.reject(err)
     })
   return defer.promise
 }
 
 var mongostorage = {
-  init: function(_settings) {
+  init: function (_settings) {
     settings = _settings
     appname = settings.mongoAppname || require('os').hostname()
     return db()
   },
-  getFlows: function() {
+  getFlows: function () {
     return timeoutWrap(getFlows)
   },
-  saveFlows: function(flows) {
-    return timeoutWrap(function() {
+  saveFlows: function (flows) {
+    return timeoutWrap(function () {
       return saveFlows(flows)
     })
   },
 
-  getCredentials: function() {
+  getCredentials: function () {
     return timeoutWrap(getCredentials)
   },
 
-  saveCredentials: function(credentials) {
-    return timeoutWrap(function() {
+  saveCredentials: function (credentials) {
+    return timeoutWrap(function () {
       return saveCredentials(credentials)
     })
   },
 
-  getSettings: function() {
-    return timeoutWrap(function() {
+  getSettings: function () {
+    return timeoutWrap(function () {
       return getSettings()
     })
   },
 
-  saveSettings: function(data) {
-    return timeoutWrap(function() {
+  saveSettings: function (data) {
+    return timeoutWrap(function () {
       return saveSettings(data)
     })
   },
 
-  getAllFlows: function() {
-    return timeoutWrap(getAllFlows)
-  },
-
-  getFlow: function(fn) {
-    return timeoutWrap(function() {
-      return getFlow(fn)
-    })
-  },
-
-  saveFlow: function(fn, data) {
-    return timeoutWrap(function() {
-      return saveFlow(fn, data)
-    })
-  },
-
-  getLibraryEntry: function(type, path) {
-    return timeoutWrap(function() {
+  getLibraryEntry: function (type, path) {
+    return timeoutWrap(function () {
       return getLibraryEntry(type, path)
     })
   },
-  saveLibraryEntry: function(type, path, meta, body) {
-    return timeoutWrap(function() {
+  saveLibraryEntry: function (type, path, meta, body) {
+    return timeoutWrap(function () {
       return saveLibraryEntry(type, path, meta, body)
     })
   }
 }
 
-// enebular
-function getEnebularFlow(key, defaultValue, cb) {
-  return when.promise(function(resolve, reject, notify) {
-    if (settings.secure_link) {
-      var url = settings.secure_link
-      request.get({ url: url, json: false }, function(err, res, body) {
-        if (err) {
-          reject(err)
-          return
-        }
-        if (res.statusCode != 200) {
-          resolve(defaultValue)
-          return
-        }
-        var data = JSON.parse(body)
-        if (data && data.packages) {
-          for (let prop in data.packages) {
-            RED.nodes
-              .installModule(prop)
-              .catch(err => console.log('install err', err))
-          }
-        }
-        if (data[key]) {
-          if (cb) cb(data)
-          resolve(data[key])
-        } else {
-          resolve(defaultValue)
-        }
-      })
-    } else {
-      resolve(defaultValue)
-    }
+const downloadAndSavePrivateNode = async (packageName, url) => {
+  const { err, res, body } = await new Promise((resolve, reject) => {
+    request.get(url, { encoding: null }, function (err, res, body) {
+      resolve(err, res, body)
+    })
   })
+  if (err) {
+    throw err
+  } else {
+    if (res.statusCode != 200) {
+      console.error('Failed to download privatenode' + res.statusCode)
+      throw new Error(
+        'Failed to download privatenode: status code:' + res.statusCode
+      )
+    } else {
+      let collection = await privateNodeCollection()
+      let buffer = new Buffer.from(body)
+      let base64str = buffer.toString('base64')
+      let privateNodeInfo = { packageName: packageName, data: base64str }
+      await new Promise((resolve, reject) => {
+        collection.insertOne(privateNodeInfo, (err, res) => {
+          if (err) {
+            reject(err)
+          } else {
+            console.log(res)
+            resolve()
+          }
+        })
+      })
+    }
+  }
+}
+
+const downloadAndSavePrivateNodes = async (packages, names, num) => {
+  if (!packages && !names) {
+    return
+  }
+  if (names.length > num) {
+    let name = names[num]
+    if (
+      typeof packages[name] === 'object' &&
+      packages[name].type === 'privatenode'
+    ) {
+      await downloadAndSavePrivateNode(name, packages[name].url)
+      await downloadAndSavePrivateNodes(packages, names, num++)
+      return
+    }
+  }
+}
+
+const savePrivateNodeFilesToMongoDB = async (packages) => {
+  if (!packages) {
+    return
+  }
+  await removePrivateNodeCollection()
+  let names = Object.keys(packages)
+  await downloadAndSavePrivateNodes(packages, names, 0)
+}
+
+const installPrivateNodePackage = async (packageName) => {
+  const collection = await privateNodeCollection()
+  let doc = await new Promise((resolve, reject) => {
+    collection.findOne({ packageName: packageName }, (err, doc) => {
+      if (err) {
+        reject(err)
+      } else {
+        if (doc && doc.data) {
+          resolve(doc)
+        } else {
+          reject(
+            new Error(`Failed to find private node packages: ${packageName}`)
+          )
+        }
+      }
+    })
+  })
+  // Save data to /tmp
+  let data = new Buffer(doc.data, 'base64')
+  await new Promise((resolve, reject) => {
+    fs.writeFile(`/tmp/${packageName}.tgz`, data, function (err) {
+      if (err) {
+        console.error('Failed to save privatenode file: ' + packageName)
+        reject(new Error('Failed to save privatenode file: ' + packageName))
+      }
+    })
+    // install
+    RED.nodes
+      .installModule(`file:/tmp/${packageName}.tgz`)
+      .then(() => {
+        resolve()
+      })
+      .catch((err) => {
+        reject(err)
+      })
+  })
+}
+
+const installPackages = async (packages) => {
+  if (!packages && !names) {
+    return
+  }
+  for (let name in packages) {
+    if (
+      typeof packages[name] === 'object' &&
+      packages[name].type === 'privatenode'
+    ) {
+      await installPrivateNodePackage(name)
+    } else {
+      await new Promise((resolve, reject) => {
+        RED.nodes
+          .installModule(packages[name])
+          .then(() => {
+            resolve()
+          })
+          .catch((err) => {
+            console.error(`install err ${name}`, err)
+            reject(err)
+          })
+      })
+    }
+  }
+}
+
+// enebular
+// Save flow/credentials/packages/secureLink information to MongoDB
+// Save PrivateNode to MongoDB if exists
+const prepareEnebularFlow = async () => {
+  var url = process.env.SECURE_LINK
+  const data = await new Promise((resolve, reject) => {
+    request.get({ url: url, json: false }, (err, res, body) => {
+      if (err) {
+        reject(err)
+        return
+      }
+      if (res.statusCode != 200) {
+        resolve(null)
+        return
+      }
+      if (body) {
+        let data = JSON.parse(body)
+        resolve(data)
+      }
+    })
+  })
+  if (data && data.flow) {
+    await saveDataToMongoDBCollection({ flow: flowData.flow })
+  }
+  if (data && data.credentials) {
+    await saveDataToMongoDBCollection({
+      credentials: bconv(data.credentials)
+    })
+  }
+  if (data && data.packages) {
+    await saveDataToMongoDBCollection({ packages: data.packages })
+    await savePrivateNodeFilesToMongoDB(data.packages)
+  }
+  await saveDataToMongoDBCollection({ secureLink: url })
 }
 
 module.exports = mongostorage
