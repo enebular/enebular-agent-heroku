@@ -528,13 +528,14 @@ const installPrivateNodePackage = async (packageName) => {
     })
   })
   // Save data to /tmp
-  let data = new Buffer(doc.data, 'base64')
+  let data = Buffer.from(doc.data, 'base64')
   await new Promise((resolve, reject) => {
     console.log(`save /tmp/${packageName}.tgz`)
     fs.writeFile(`/tmp/${packageName}.tgz`, data, (err) => {
       if (err) {
         console.error('Failed to save privatenode file: ' + packageName)
         reject(err)
+        return
       }
       // install
       console.log(`install file:/tmp/${packageName}.tgz`)
