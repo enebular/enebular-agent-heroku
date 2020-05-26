@@ -263,7 +263,7 @@ function getSettings() {
     try {
       const data = await getCollectionData()
       if (data && data.settings) {
-        resolve(jconv(doc.settings))
+        resolve(jconv(data.settings))
       } else {
         resolve({})
       }
