@@ -53,7 +53,7 @@ function bconv(credentials) {
 }
 
 const db = async () => {
-  return Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     if (!mongodb) {
       mongo.MongoClient.connect(
         settings.mongoUrl,
