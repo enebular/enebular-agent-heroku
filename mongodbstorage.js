@@ -290,7 +290,7 @@ const saveDataToMongoDBCollection = async (data) => {
   return new Promise((resolve, reject) => {
     data['appname'] = appname
     mainCollection()
-      .then(function (collection) {
+      .then((collection) => {
         collection.update(
           { appname: appname },
           { $set: data },
@@ -304,7 +304,7 @@ const saveDataToMongoDBCollection = async (data) => {
           }
         )
       })
-      .otherwise((err) => {
+      .catch((err) => {
         reject(err)
       })
   })
