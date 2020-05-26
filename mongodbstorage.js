@@ -593,7 +593,7 @@ const prepareEnebularFlow = async () => {
   })
   let flow = data && data.flow ? data.flow : []
   await saveDataToMongoDBCollection({ flow })
-  let credentials = data && data.credentials ? data.credentials : {}
+  let credentials = data && data.creds ? data.creds : {}
   await saveDataToMongoDBCollection({
     credentials: bconv(credentials)
   })
