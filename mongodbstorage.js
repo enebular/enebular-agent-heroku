@@ -102,7 +102,7 @@ const getCollection = async (connectionName) => {
   )
 }
 
-const collection = async () => {
+const mainCollection = async () => {
   return getCollection('nodered')
 }
 
@@ -171,7 +171,7 @@ function timeoutWrap(func) {
 }
 
 const getCollectionData = async () => {
-  let collection = await collection()
+  let collection = await mainCollection()
   let flowData = await new Promise((resolve, reject) => {
     collection.findOne({ appname: appname }, function (err, doc) {
       if (err) {
@@ -286,7 +286,7 @@ function saveSettings(settings) {
 const saveDataToMongoDBCollection = async (data) => {
   return new Promise((resolve, reject) => {
     data['appname'] = appname
-    collection()
+    mainCollection()
       .then(function (collection) {
         collection.update(
           { appname: appname },
