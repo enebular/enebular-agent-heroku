@@ -53,7 +53,7 @@ function bconv(credentials) {
 }
 
 const db = async () => {
-  return new Promise((resolve, reject) => {
+  return Promise((resolve, reject) => {
     if (!mongodb) {
       mongo.MongoClient.connect(
         settings.mongoUrl,
@@ -88,8 +88,8 @@ const db = async () => {
 }
 
 const getCollection = async (connectionName) => {
-  const db = await db()
-  db.collection(
+  const _db = await db()
+  _db.collection(
     settings.mongoCollection || connectionName,
     (err, _collection) => {
       if (err) {
@@ -396,7 +396,14 @@ var mongostorage = {
   init: function (_settings) {
     settings = _settings
     appname = settings.mongoAppname || require('os').hostname()
-    return db()
+    return when.promise(async (resolve, reject, notify) => {
+      try {
+        const _db = await db()
+        resolve(_db)
+      } catch (err) {
+        reject(err)
+      }
+    })
   },
   getFlows: function () {
     return timeoutWrap(getFlows)
