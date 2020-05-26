@@ -537,6 +537,12 @@ const installPrivateNodePackage = async (packageName) => {
         reject(err)
         return
       }
+      //Test check file
+      if (fs.existsSync(`/tmp/${packageName}.tgz`)) {
+        console.log('success save privatenode !')
+      } else {
+        console.log('fail save privatenode !')
+      }
       // install
       console.log(`install file:/tmp/${packageName}.tgz`)
       RED.nodes
