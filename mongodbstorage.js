@@ -459,9 +459,11 @@ var mongostorage = {
 }
 
 const downloadAndSavePrivateNode = async (packageName, url) => {
+  console.log('downloadAndSavePrivateNode:', packageName, url)
   const { err, res, body } = await new Promise((resolve, reject) => {
     request.get(url, { encoding: null }, (err, res, body) => {
-      resolve(err, res, body)
+      console.log(`download ${packageName} `, err, res, body)
+      resolve({ err, res, body })
     })
   })
   if (err) {
@@ -492,6 +494,7 @@ const downloadAndSavePrivateNode = async (packageName, url) => {
 }
 
 const savePrivateNodeFilesToMongoDB = async (packages) => {
+  console.log('savePrivateNodeFilesToMongoDB', packages)
   if (!packages) {
     return
   }
@@ -507,6 +510,7 @@ const savePrivateNodeFilesToMongoDB = async (packages) => {
 }
 
 const installPrivateNodePackage = async (packageName) => {
+  console.log('installPrivateNodePackage:' + packageName)
   const collection = await privateNodeCollection()
   let doc = await new Promise((resolve, reject) => {
     collection.findOne({ packageName: packageName }, (err, doc) => {
@@ -526,21 +530,23 @@ const installPrivateNodePackage = async (packageName) => {
   // Save data to /tmp
   let data = new Buffer(doc.data, 'base64')
   await new Promise((resolve, reject) => {
-    fs.writeFile(`/tmp/${packageName}.tgz`, data, function (err) {
+    console.log(`save /tmp/${packageName}.tgz`)
+    fs.writeFile(`/tmp/${packageName}.tgz`, data, (err) => {
       if (err) {
         console.error('Failed to save privatenode file: ' + packageName)
-        reject(new Error('Failed to save privatenode file: ' + packageName))
-      }
-    })
-    // install
-    RED.nodes
-      .installModule(`file:/tmp/${packageName}.tgz`)
-      .then(() => {
-        resolve()
-      })
-      .catch((err) => {
         reject(err)
-      })
+      }
+      // install
+      console.log(`install file:/tmp/${packageName}.tgz`)
+      RED.nodes
+        .installModule(`file:/tmp/${packageName}.tgz`)
+        .then(() => {
+          resolve()
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
   })
 }
 
