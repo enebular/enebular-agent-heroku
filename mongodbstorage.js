@@ -590,7 +590,7 @@ const prepareEnebularFlow = async () => {
     })
   })
   if (data && data.flow) {
-    await saveDataToMongoDBCollection({ flow: flowData.flow })
+    await saveDataToMongoDBCollection({ flow: data.flow })
   }
   if (data && data.credentials) {
     await saveDataToMongoDBCollection({
