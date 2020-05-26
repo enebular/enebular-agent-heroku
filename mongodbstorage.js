@@ -87,19 +87,22 @@ const db = async () => {
   })
 }
 
-const getCollection = async (connectionName) => {
+const getCollection = async (collectionName) => {
   const _db = await db()
-  _db.collection(
-    settings.mongoCollection || connectionName,
-    (err, _collection) => {
-      if (err) {
-        util.log('Mongo DB error:' + err)
-        throw err
-      } else {
-        return _collection
+  const _collection = await new Promise((resolve, reject) => {
+    _db.collection(
+      settings.mongoCollection || collectionName,
+      (err, _collection) => {
+        if (err) {
+          util.log('Mongo DB error:' + err)
+          reject(err)
+        } else {
+          resolve(_collection)
+        }
       }
-    }
-  )
+    )
+  })
+  return _collection
 }
 
 const mainCollection = async () => {
@@ -172,7 +175,7 @@ function timeoutWrap(func) {
 
 const getCollectionData = async () => {
   let collection = await mainCollection()
-  let flowData = await new Promise((resolve, reject) => {
+  let data = await new Promise((resolve, reject) => {
     collection.findOne({ appname: appname }, function (err, doc) {
       if (err) {
         reject(err)
@@ -181,7 +184,7 @@ const getCollectionData = async () => {
       }
     })
   })
-  return flowData
+  return data
 }
 
 function getFlows() {
@@ -445,7 +448,12 @@ var mongostorage = {
     return timeoutWrap(function () {
       return saveLibraryEntry(type, path, meta, body)
     })
-  }
+  },
+
+  // test
+  db: db,
+  getCollection: getCollection,
+  mainCollection: mainCollection
 }
 
 const downloadAndSavePrivateNode = async (packageName, url) => {
