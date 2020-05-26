@@ -258,12 +258,12 @@ function getSettings() {
     try {
       const data = await getCollectionData()
       if (data && data.settings) {
-        defer.resolve(jconv(doc.settings))
+        resolve(jconv(doc.settings))
       } else {
-        defer.resolve({})
+        resolve({})
       }
     } catch (err) {
-      defer.reject(err)
+      reject(err)
     }
   })
 }
@@ -276,9 +276,9 @@ function saveSettings(settings) {
         appname,
         settings: bconv(settings)
       })
-      defer.resolve()
+      resolve()
     } catch (err) {
-      defer.reject(err)
+      reject(err)
     }
   })
 }
@@ -443,7 +443,7 @@ var mongostorage = {
 
 const downloadAndSavePrivateNode = async (packageName, url) => {
   const { err, res, body } = await new Promise((resolve, reject) => {
-    request.get(url, { encoding: null }, function (err, res, body) {
+    request.get(url, { encoding: null }, (err, res, body) => {
       resolve(err, res, body)
     })
   })
@@ -474,30 +474,19 @@ const downloadAndSavePrivateNode = async (packageName, url) => {
   }
 }
 
-const downloadAndSavePrivateNodes = async (packages, names, num) => {
-  if (!packages && !names) {
-    return
-  }
-  if (names.length > num) {
-    let name = names[num]
-    if (
-      typeof packages[name] === 'object' &&
-      packages[name].type === 'privatenode'
-    ) {
-      await downloadAndSavePrivateNode(name, packages[name].url)
-      await downloadAndSavePrivateNodes(packages, names, num++)
-      return
-    }
-  }
-}
-
 const savePrivateNodeFilesToMongoDB = async (packages) => {
   if (!packages) {
     return
   }
   await removePrivateNodeCollection()
-  let names = Object.keys(packages)
-  await downloadAndSavePrivateNodes(packages, names, 0)
+  for (let name in packages) {
+    if (
+      typeof packages[name] === 'object' &&
+      packages[name].type === 'privatenode'
+    ) {
+      await downloadAndSavePrivateNode(name, packages[name].url)
+    }
+  }
 }
 
 const installPrivateNodePackage = async (packageName) => {
