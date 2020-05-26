@@ -122,7 +122,9 @@ const removePrivateNodeCollection = async () => {
   await new Promise((resolve, reject) => {
     collection.drop((err, delOK) => {
       if (err) {
-        reject(err)
+        // ignore drop collection error because it's happend first time deploy
+        console.log('Failed to drop collection but ignored: ', err)
+        resolve()
       } else {
         if (delOK) {
           console.log('Collection deleted')
