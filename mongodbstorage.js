@@ -591,14 +591,12 @@ const prepareEnebularFlow = async () => {
       }
     })
   })
-  if (data && data.flow) {
-    await saveDataToMongoDBCollection({ flow: data.flow })
-  }
-  if (data && data.credentials) {
-    await saveDataToMongoDBCollection({
-      credentials: bconv(data.credentials)
-    })
-  }
+  let flow = data && data.flow ? data.flow : []
+  await saveDataToMongoDBCollection({ flow })
+  let credentials = data && data.credentials ? data.credentials : {}
+  await saveDataToMongoDBCollection({
+    credentials: bconv(credentials)
+  })
   if (data && data.packages) {
     await saveDataToMongoDBCollection({ packages: data.packages })
     await savePrivateNodeFilesToMongoDB(data.packages)
