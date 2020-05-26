@@ -368,7 +368,7 @@ function getLibraryEntry(type, path) {
         }
       )
     })
-    .otherwise(function (err) {
+    .catch(function (err) {
       defer.reject(err)
     })
   return defer.promise
@@ -391,7 +391,7 @@ function saveLibraryEntry(type, path, meta, body) {
         }
       )
     })
-    .otherwise(function (err) {
+    .catch(function (err) {
       defer.reject(err)
     })
   return defer.promise
