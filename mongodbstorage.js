@@ -201,7 +201,7 @@ function getFlows() {
       if (data && data.packages) {
         await installPackages(data.packages)
       }
-      if (data && dattat.flow) {
+      if (data && data.flow) {
         resolve(data.flow)
       } else {
         resolve([])
