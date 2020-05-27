@@ -5,6 +5,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "prestart": "node prestart",
     "start": "node app"
   },
   "engines": {

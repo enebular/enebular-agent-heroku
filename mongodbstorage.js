@@ -14,12 +14,9 @@
  * limitations under the License.
  **/
 
-var request = require('request')
 var mongo = require('mongodb')
 var when = require('when')
 var util = require('util')
-var RED = require('@uhuru/enebular-node-red')
-var fs = require('fs')
 
 var settings
 
@@ -113,28 +110,6 @@ const libCollection = async () => {
   return getCollection('nodered' + '-lib')
 }
 
-const privateNodeCollection = async () => {
-  return getCollection('nodered' + '-privatenode')
-}
-
-const removePrivateNodeCollection = async () => {
-  let collection = await privateNodeCollection()
-  await new Promise((resolve, reject) => {
-    collection.drop((err, delOK) => {
-      if (err) {
-        // ignore drop collection error because it's happend first time deploy
-        console.log('Failed to drop collection but ignored: ', err)
-        resolve()
-      } else {
-        if (delOK) {
-          console.log('Collection deleted')
-          resolve()
-        }
-      }
-    })
-  })
-}
-
 function close() {
   return when.promise(function (resolve, reject, notify) {
     if (mongodb) {
@@ -193,14 +168,7 @@ function getFlows() {
   console.log('getFlows')
   return when.promise(async (resolve, reject, notify) => {
     try {
-      let secureLinkSame = await isSecureLinkSame()
-      if (!secureLinkSame) {
-        await prepareEnebularFlow()
-      }
       const data = await getCollectionData()
-      if (data && data.packages) {
-        await installPackages(data.packages)
-      }
       if (data && data.flow) {
         resolve(data.flow)
       } else {
@@ -310,15 +278,6 @@ const saveDataToMongoDBCollection = async (data) => {
         reject(err)
       })
   })
-}
-
-const isSecureLinkSame = async () => {
-  let doc = await getCollectionData()
-  if (doc && doc.secureLink && doc.secureLink === process.env.secure_link) {
-    return true
-  } else {
-    return false
-  }
 }
 
 function getLibraryEntry(type, path) {
@@ -450,171 +409,7 @@ var mongostorage = {
     return timeoutWrap(function () {
       return saveLibraryEntry(type, path, meta, body)
     })
-  },
-
-  // test
-  db: db,
-  getCollection: getCollection,
-  mainCollection: mainCollection
-}
-
-const downloadAndSavePrivateNode = async (packageName, url) => {
-  console.log('downloadAndSavePrivateNode:', packageName, url)
-  const { err, res, body } = await new Promise((resolve, reject) => {
-    request.get(url, { encoding: null }, (err, res, body) => {
-      console.log(`download ${packageName} `, err, res, body)
-      resolve({ err, res, body })
-    })
-  })
-  if (err) {
-    throw err
-  } else {
-    if (res.statusCode != 200) {
-      console.error('Failed to download privatenode' + res.statusCode)
-      throw new Error(
-        'Failed to download privatenode: status code:' + res.statusCode
-      )
-    } else {
-      let collection = await privateNodeCollection()
-      let buffer = new Buffer.from(body)
-      let base64str = buffer.toString('base64')
-      let privateNodeInfo = { packageName: packageName, data: base64str }
-      await new Promise((resolve, reject) => {
-        collection.insertOne(privateNodeInfo, (err, res) => {
-          if (err) {
-            reject(err)
-          } else {
-            console.log(res)
-            resolve()
-          }
-        })
-      })
-    }
   }
-}
-
-const savePrivateNodeFilesToMongoDB = async (packages) => {
-  console.log('savePrivateNodeFilesToMongoDB', packages)
-  if (!packages) {
-    return
-  }
-  await removePrivateNodeCollection()
-  for (let name in packages) {
-    if (
-      typeof packages[name] === 'object' &&
-      packages[name].type === 'privatenode'
-    ) {
-      await downloadAndSavePrivateNode(name, packages[name].url)
-    }
-  }
-}
-
-const installPrivateNodePackage = async (packageName) => {
-  console.log('installPrivateNodePackage:' + packageName)
-  const collection = await privateNodeCollection()
-  let doc = await new Promise((resolve, reject) => {
-    collection.findOne({ packageName: packageName }, (err, doc) => {
-      if (err) {
-        reject(err)
-      } else {
-        if (doc && doc.data) {
-          resolve(doc)
-        } else {
-          reject(
-            new Error(`Failed to find private node packages: ${packageName}`)
-          )
-        }
-      }
-    })
-  })
-  // Save data to /tmp
-  let data = Buffer.from(doc.data, 'base64')
-  await new Promise((resolve, reject) => {
-    console.log(`save /tmp/${packageName}.tgz`)
-    fs.writeFile(`/tmp/${packageName}.tgz`, data, (err) => {
-      if (err) {
-        console.error('Failed to save privatenode file: ' + packageName)
-        reject(err)
-        return
-      }
-      //Test check file
-      if (fs.existsSync(`/tmp/${packageName}.tgz`)) {
-        console.log('success save privatenode !')
-      } else {
-        console.log('fail save privatenode !')
-      }
-      // install
-      console.log(`install file:/tmp/${packageName}.tgz`)
-      RED.nodes
-        .installModule(`file:/tmp/${packageName}.tgz`)
-        .then(() => {
-          resolve()
-        })
-        .catch((err) => {
-          reject(err)
-        })
-    })
-  })
-}
-
-const installPackages = async (packages) => {
-  if (!packages && !names) {
-    return
-  }
-  for (let name in packages) {
-    if (
-      typeof packages[name] === 'object' &&
-      packages[name].type === 'privatenode'
-    ) {
-      await installPrivateNodePackage(name)
-    } else {
-      await new Promise((resolve, reject) => {
-        RED.nodes
-          .installModule(packages[name])
-          .then(() => {
-            resolve()
-          })
-          .catch((err) => {
-            console.error(`install err ${name}`, err)
-            reject(err)
-          })
-      })
-    }
-  }
-}
-
-// enebular
-// Save flow/credentials/packages/secureLink information to MongoDB
-// Save PrivateNode to MongoDB if exists
-const prepareEnebularFlow = async () => {
-  var url = process.env.SECURE_LINK
-  const data = await new Promise((resolve, reject) => {
-    request.get({ url: url, json: false }, (err, res, body) => {
-      if (err) {
-        reject(err)
-        return
-      }
-      if (res.statusCode != 200) {
-        resolve(null)
-        return
-      }
-      if (body) {
-        let data = JSON.parse(body)
-        resolve(data)
-      }
-    })
-  })
-  let flow = data && data.flow ? data.flow : []
-  await saveDataToMongoDBCollection({ flow })
-  let credentials = data && data.creds ? data.creds : {}
-  await saveDataToMongoDBCollection({
-    credentials: bconv(credentials)
-  })
-  if (data && data.packages) {
-    await saveDataToMongoDBCollection({ packages: data.packages })
-    await savePrivateNodeFilesToMongoDB(data.packages)
-  }
-  await saveDataToMongoDBCollection({ secureLink: url })
 }
 
 module.exports = mongostorage
