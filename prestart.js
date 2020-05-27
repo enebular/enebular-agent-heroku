@@ -288,7 +288,8 @@ const installPackages = async (packages) => {
       packages[name].type === 'privatenode'
     ) {
       await installPrivateNodePackage(name)
-    } else {
+      /*} else {
+      // 通常のNodeのインストールはNode-REDに任せることとしここでは実行しない
       await new Promise((resolve, reject) => {
         installNPMModule(`${name}@${packages[name]}`)
           .then((result) => {
@@ -297,7 +298,7 @@ const installPackages = async (packages) => {
           .catch((err) => {
             reject(err)
           })
-      })
+      })*/
     }
   }
 }
