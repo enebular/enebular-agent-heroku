@@ -162,11 +162,11 @@ const saveDataToMongoDBCollection = async (data) => {
 
 const needDownloadFlow = async () => {
   let doc = await getCollectionData()
-  if (!process.env.secure_link) {
-    console.log('***** secure_link', process.env.secure_link)
+  if (!process.env.SECURE_LINK) {
+    console.log('***** SECURE_LINK', process.env.SECURE_LINK)
     return false
   }
-  if (doc && doc.secureLink && doc.secureLink === process.env.secure_link) {
+  if (doc && doc.secureLink && doc.secureLink === process.env.SECURE_LINK) {
     return false
   } else {
     return true
