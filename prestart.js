@@ -339,23 +339,24 @@ const prepareEnebularFlow = async () => {
 
 const main = async () => {
   try {
-    console.time('prestart script start')
+    console.time('prestart script')
+    appname = settings.mongoAppname || require('os').hostname()
     console.log('Presigned URLからFlowの取得が必要か判定')
     const secureLinkSame = await isSecureLinkSame()
     if (!secureLinkSame) {
       await prepareEnebularFlow()
     }
     // Node-REDのノード(プライベートノード含む)のインストール
-    console.time('install privatenodes from S3')
+    console.log('install privatenodes from S3')
     const data = await getCollectionData()
     if (data && data.packages) {
       await installPackages(data.packages)
     }
-    console.timeEnd('prestart script end')
+    console.timeEnd('prestart script')
   } catch (err) {
     //TODO: エラーの場合はDynoの再起動を促すように例外をスローすべきか検討必要
     console.error('prestart script error', err)
-    console.timeEnd('prestart script end with error')
+    console.timeEnd('prestart script')
   } finally {
     close()
   }
