@@ -160,12 +160,15 @@ const saveDataToMongoDBCollection = async (data) => {
   })
 }
 
-const isSecureLinkSame = async () => {
+const needDownloadFlow = async () => {
   let doc = await getCollectionData()
-  if (doc && doc.secureLink && doc.secureLink === process.env.secure_link) {
-    return true
-  } else {
+  if (!process.env.secure_link) {
     return false
+  }
+  if (doc && doc.secureLink && doc.secureLink === process.env.secure_link) {
+    return false
+  } else {
+    return true
   }
 }
 
@@ -342,12 +345,13 @@ const main = async () => {
     console.time('prestart script')
     appname = settings.mongoAppname || require('os').hostname()
     console.log('Presigned URLからFlowの取得が必要か判定')
-    const secureLinkSame = await isSecureLinkSame()
-    if (!secureLinkSame) {
+    const need = await needDownloadFlow()
+    if (need) {
+      console.log('Download flow pack from S3')
       await prepareEnebularFlow()
     }
     // Node-REDのノード(プライベートノード含む)のインストール
-    console.log('install privatenodes from S3')
+    console.log('install privatenodes')
     const data = await getCollectionData()
     if (data && data.packages) {
       await installPackages(data.packages)
