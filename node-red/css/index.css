@@ -10,21 +10,21 @@
   color: white;
   font-size: 14px; }
 
-span.logo {
-  float: left;
-  margin-top: 5px;
-  font-size: 30px;
-  line-height: 30px;
-  text-decoration: none; }
-  span.logo span {
-    vertical-align: middle;
-    font-size: 16px !important; }
-  span.logo img {
-    height: 32px; }
-  span.logo a {
-    color: inherit; }
-    span.logo a:hover {
-      text-decoration: none; }
+  #red-ui-header span.red-ui-header-logo {
+    float: left;
+    margin-top: 5px;
+    font-size: 30px;
+    line-height: 30px;
+    text-decoration: none; }
+  #red-ui-header span.red-ui-header-logo span {
+      vertical-align: middle;
+      font-size: 16px !important; }
+    #red-ui-header span.red-ui-header-logo img {
+      height: 32px; }
+    #red-ui-header span.red-ui-header-logo a {
+      color: inherit; }
+      #red-ui-header span.red-ui-header-logo a:hover {
+        text-decoration: none; }
 
 .red-ui-header-toolbar {
   padding: 0;
@@ -75,14 +75,14 @@ span.logo {
   padding: 4px 8px;
   margin: 0; }
 
-.red-ui-deploy-button {
-  background: #91b122;
-  color: #eee !important; }
-  .red-ui-deploy-button:hover {
-    background: #6E0A1E; }
-  .red-ui-deploy-button:active {
-    background: #4C0A17;
-    color: #ccc !important; }
+  #red-ui-header .red-ui-deploy-button {
+    background: #91b122;
+    color: #eee !important; }
+    #red-ui-header .red-ui-deploy-button:hover {
+      background: #6E0A1E; }
+      #red-ui-header .red-ui-deploy-button:active {
+        background: #4C0A17;
+        color: #ccc !important; }
 
 .red-ui-deploy-button-spinner {
   position: absolute;
