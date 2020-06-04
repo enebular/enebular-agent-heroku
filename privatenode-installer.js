@@ -341,9 +341,9 @@ const prepareEnebularFlow = async () => {
   await saveDataToMongoDBCollection({ secureLink: url })
 }
 
-const main = async () => {
+const installPrivateNode = async () => {
   try {
-    console.time('prestart script')
+    console.time('privatenode install')
     appname = settings.mongoAppname || require('os').hostname()
     console.log('Presigned URLからFlowの取得が必要か判定')
     const need = await needDownloadFlow()
@@ -357,16 +357,13 @@ const main = async () => {
     if (data && data.packages) {
       await installPackages(data.packages)
     }
-    console.timeEnd('prestart script')
+    console.timeEnd('privatenode install')
   } catch (err) {
-    //TODO: エラーの場合はDynoの再起動を促すように例外をスローすべきか検討必要
-    console.error('prestart script error', err)
-    console.timeEnd('prestart script')
+    console.timeEnd('privatenode install')
+    throw err
   } finally {
     close()
   }
 }
 
-main().then(() => {
-  console.log('finish main')
-})
+module.exports = installPrivateNode
