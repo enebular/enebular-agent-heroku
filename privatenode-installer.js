@@ -295,11 +295,19 @@ const installPackages = async (packages) => {
     } else {
       // ユーザがインストールしたノードのパッケージをインストール
       await new Promise((resolve, reject) => {
+        console.log(`install user installed node: ${name}@${packages[name]}`)
         installNPMModule(`${name}@${packages[name]}`)
           .then((result) => {
+            console.log(
+              `install user installed node success: ${name}@${packages[name]}`
+            )
             resolve(result)
           })
           .catch((err) => {
+            console.log(
+              `install user installed node fail: ${name}@${packages[name]}`,
+              err
+            )
             reject(err)
           })
       })
