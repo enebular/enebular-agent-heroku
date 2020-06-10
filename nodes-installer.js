@@ -260,8 +260,7 @@ const installPrivateNodePackage = async (packageName) => {
     fs.writeFile(`/tmp/${packageName}.tgz`, data, (err) => {
       if (err) {
         console.error('Failed to save privatenode file: ' + packageName)
-        reject(err)
-        return
+        return reject(err)
       }
       //Test check file
       if (fs.existsSync(`/tmp/${packageName}.tgz`)) {
@@ -320,15 +319,16 @@ const installPackages = async (packages) => {
 // Save PrivateNode to MongoDB if exists
 const prepareEnebularFlow = async () => {
   var url = process.env.SECURE_LINK
+  if (!url) {
+    throw new Error('SECURE_LINK not defined')
+  }
   const data = await new Promise((resolve, reject) => {
     request.get({ url: url, json: false }, (err, res, body) => {
       if (err) {
-        reject(err)
-        return
+        return reject(err)
       }
       if (res.statusCode != 200) {
-        resolve(null)
-        return
+        return resolve(null)
       }
       if (body) {
         let data = JSON.parse(body)
@@ -349,9 +349,8 @@ const prepareEnebularFlow = async () => {
   await saveDataToMongoDBCollection({ secureLink: url })
 }
 
-const installPrivateNode = async () => {
+const installNodes = async () => {
   try {
-    console.time('privatenode install')
     appname = settings.mongoAppname || require('os').hostname()
     console.log('Presigned URLからFlowの取得が必要か判定')
     const need = await needDownloadFlow()
@@ -360,18 +359,15 @@ const installPrivateNode = async () => {
       await prepareEnebularFlow()
     }
     // Node-REDのノード(プライベートノード含む)のインストール
-    console.log('install privatenodes')
     const data = await getCollectionData()
     if (data && data.packages) {
       await installPackages(data.packages)
     }
-    console.timeEnd('privatenode install')
   } catch (err) {
-    console.timeEnd('privatenode install')
     throw err
   } finally {
     close()
   }
 }
 
-module.exports = installPrivateNode
+module.exports = installNodes
