@@ -225,11 +225,11 @@ const savePrivateNodeFilesToMongoDB = async (packages) => {
 }
 
 // npmを使ったインストールを行う
-// packageは以下の2パタンのパッケージが複数連結された文字列が入る想定
+// packageは以下の2パタンのパッケージ文字列の配列
 // ・<package name>@<version>
 // ・<File(tgz) path>
-const installNPMModule = async (package) => {
-  let result = await execFileAsync(npmCommand, ['install', package], {
+const installNPMModule = async (packages) => {
+  let result = await execFileAsync(npmCommand, ['install', ...packages], {
     cwd: path.resolve(__dirname)
   })
   return result
