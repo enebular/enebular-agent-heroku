@@ -295,20 +295,14 @@ const installPackages = async (packages) => {
     })
   )
   await new Promise((resolve, reject) => {
-    const installingPackages = packageStrings.join(' ')
-    console.log(`install nodes: ${installingPackages}`)
-    installNPMModule(installingPackages)
+    console.log(`install nodes: ${packageStrings}`)
+    installNPMModule(packageStrings)
       .then((result) => {
-        console.log(
-          `install user installed node success: ${installingPackages}`
-        )
+        console.log(`install node packages success: ${packageStrings}`)
         resolve(result)
       })
       .catch((err) => {
-        console.log(
-          `install user installed node fail: ${installingPackages}`,
-          err
-        )
+        console.log(`install node packages fail: ${packageStrings}`, err)
         reject(err)
       })
   })
