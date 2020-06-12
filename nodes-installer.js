@@ -280,8 +280,9 @@ const installPackages = async (packages) => {
   if (!packages) {
     return
   }
+  const names = Object.keys(packages)
   let packageStrings = await Promise.all(
-    packages.keys().map((name) => {
+    names.map((name) => {
       if (
         typeof packages[name] === 'object' &&
         packages[name].type === 'privatenode'
