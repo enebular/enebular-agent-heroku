@@ -177,7 +177,7 @@ const downloadAndSavePrivateNode = async (packageName, url) => {
   console.log('downloadAndSavePrivateNode:', packageName, url)
   const { err, res, body } = await new Promise((resolve, reject) => {
     request.get(url, { encoding: null }, (err, res, body) => {
-      console.log(`download ${packageName} `, err, res, body)
+      //console.log(`download ${packageName} `, err, res, body)
       resolve({ err, res, body })
     })
   })
@@ -199,7 +199,7 @@ const downloadAndSavePrivateNode = async (packageName, url) => {
           if (err) {
             reject(err)
           } else {
-            console.log(res)
+            // console.log(res)
             resolve()
           }
         })
@@ -225,7 +225,7 @@ const savePrivateNodeFilesToMongoDB = async (packages) => {
 }
 
 // npmを使ったインストールを行う
-// packageは以下の2パタンを想定
+// packageは以下の2パタンのパッケージが複数連結された文字列が入る想定
 // ・<package name>@<version>
 // ・<File(tgz) path>
 const installNPMModule = async (package) => {
@@ -235,7 +235,7 @@ const installNPMModule = async (package) => {
   return result
 }
 
-const installPrivateNodePackage = async (packageName) => {
+const getPrivateNodePackageStringForInstall = async (packageName) => {
   console.log('installPrivateNodePackage:' + packageName)
   const collection = await privateNodeCollection()
   let doc = await new Promise((resolve, reject) => {
@@ -255,7 +255,7 @@ const installPrivateNodePackage = async (packageName) => {
   })
   // Save data to /tmp
   let data = Buffer.from(doc.data, 'base64')
-  await new Promise((resolve, reject) => {
+  let packageString = await new Promise((resolve, reject) => {
     console.log(`save /tmp/${packageName}.tgz`)
     fs.writeFile(`/tmp/${packageName}.tgz`, data, (err) => {
       if (err) {
@@ -268,50 +268,49 @@ const installPrivateNodePackage = async (packageName) => {
       } else {
         console.log('fail save privatenode !')
       }
-      // install
+      // return package string
       console.log(`install file:/tmp/${packageName}.tgz`)
-      installNPMModule(`file:/tmp/${packageName}.tgz`)
-        .then((result) => {
-          resolve(result)
-        })
-        .catch((err) => {
-          reject(err)
-        })
+      resolve(`file:/tmp/${packageName}.tgz`)
     })
   })
+  return packageString
 }
 
 const installPackages = async (packages) => {
-  if (!packages && !names) {
+  if (!packages) {
     return
   }
-  for (let name in packages) {
-    if (
-      typeof packages[name] === 'object' &&
-      packages[name].type === 'privatenode'
-    ) {
-      await installPrivateNodePackage(name)
-    } else {
-      // ユーザがインストールしたノードのパッケージをインストール
-      await new Promise((resolve, reject) => {
-        console.log(`install user installed node: ${name}@${packages[name]}`)
-        installNPMModule(`${name}@${packages[name]}`)
-          .then((result) => {
-            console.log(
-              `install user installed node success: ${name}@${packages[name]}`
-            )
-            resolve(result)
-          })
-          .catch((err) => {
-            console.log(
-              `install user installed node fail: ${name}@${packages[name]}`,
-              err
-            )
-            reject(err)
-          })
+  let packageStrings = await Promise.all(
+    packages.keys().map((name) => {
+      if (
+        typeof packages[name] === 'object' &&
+        packages[name].type === 'privatenode'
+      ) {
+        return getPrivateNodePackageStringForInstall(name)
+      } else {
+        // ユーザがインストールしたノードのパッケージ文字列取得
+        return `${name}@${packages[name]}`
+      }
+    })
+  )
+  await new Promise((resolve, reject) => {
+    console.log(`install node: ${name}@${packages[name]}`)
+    const installingPackages = packageStrings.join(' ')
+    installNPMModule(installingPackages)
+      .then((result) => {
+        console.log(
+          `install user installed node success: ${installingPackages}`
+        )
+        resolve(result)
       })
-    }
-  }
+      .catch((err) => {
+        console.log(
+          `install user installed node fail: ${installingPackages}`,
+          err
+        )
+        reject(err)
+      })
+  })
 }
 
 // enebular
