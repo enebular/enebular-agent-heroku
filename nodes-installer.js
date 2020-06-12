@@ -295,8 +295,8 @@ const installPackages = async (packages) => {
     })
   )
   await new Promise((resolve, reject) => {
-    console.log(`install node: ${name}@${packages[name]}`)
     const installingPackages = packageStrings.join(' ')
+    console.log(`install nodes: ${installingPackages}`)
     installNPMModule(installingPackages)
       .then((result) => {
         console.log(
