@@ -216,7 +216,7 @@ const installNodes = async () => {
   } catch (err) {
     throw err
   } finally {
-    close()
+    mutil.close()
   }
 }
 
