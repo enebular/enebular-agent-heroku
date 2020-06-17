@@ -1,8 +1,7 @@
 var mongo = require('mongodb')
 var when = require('when')
 var util = require('util')
-
-var settings
+var settings = require('./settings')
 
 var mongodb
 
