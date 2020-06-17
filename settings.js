@@ -39,14 +39,14 @@ var settings = {
   },
   adminAuth: {
     type: 'credentials',
-    users: function(username) {
+    users: function (username) {
       if (process.env.USERNAME == username) {
         return when.resolve({ username: username, permissions: '*' })
       } else {
         return when.resolve(null)
       }
     },
-    authenticate: function(username, password) {
+    authenticate: function (username, password) {
       if (
         process.env.USERNAME == username &&
         process.env.PASSWORD == password
@@ -59,6 +59,7 @@ var settings = {
   }
 }
 
+console.log(' ////////////////// ', process.env.ISSUER)
 if (process.env.ISSUER) {
   settings.storageModule = require('./mongodbstorage')
   settings.enebularHost = process.env.ISSUER || 'http://localhost:7000'
@@ -70,6 +71,7 @@ if (process.env.ISSUER) {
     process.env.MONGO_URI ||
     process.env.MONGOLAB_URI ||
     'mongodb://localhost:27017/enebular-heroku'
+  console.log(' ////////////////// ', settings.mongoUrl)
   settings.mongoAppname = 'enebular'
 } else {
   settings.userDir = path.join(__dirname)

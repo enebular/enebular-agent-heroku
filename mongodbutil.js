@@ -24,6 +24,8 @@ const bconv = (credentials) => {
 const db = async () => {
   return new Promise((resolve, reject) => {
     if (!mongodb) {
+      console.log('test******************', settings)
+      console.log('test******************', settings.mongoUrl)
       mongo.MongoClient.connect(
         settings.mongoUrl,
         {
