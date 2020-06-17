@@ -81,7 +81,7 @@ function getCredentials() {
     try {
       const data = await mutil.getCollectionData(appname)
       if (data && data.credentials) {
-        resolve(jconv(data.credentials))
+        resolve(mutil.jconv(data.credentials))
       } else {
         reject({})
       }
@@ -97,7 +97,7 @@ function saveCredentials(credentials) {
     try {
       await mutil.saveDataToMongoDBCollection(
         {
-          credentials: bconv(credentials)
+          credentials: mutil.bconv(credentials)
         },
         appname
       )
@@ -114,7 +114,7 @@ function getSettings() {
     try {
       const data = await mutil.getCollectionData(appname)
       if (data && data.settings) {
-        resolve(jconv(data.settings))
+        resolve(mutil.jconv(data.settings))
       } else {
         resolve({})
       }
@@ -130,7 +130,7 @@ function saveSettings(settings) {
     try {
       await mutil.saveDataToMongoDBCollection(
         {
-          settings: bconv(settings)
+          settings: mutil.bconv(settings)
         },
         appname
       )
