@@ -1,7 +1,6 @@
 var mongo = require('mongodb')
 var when = require('when')
 var util = require('util')
-var settings = require('./settings')
 
 var mongodb
 
@@ -24,6 +23,7 @@ const bconv = (credentials) => {
 const db = async () => {
   return new Promise((resolve, reject) => {
     if (!mongodb) {
+      settings = require('./settings')
       console.log('test******************', settings)
       console.log('test******************', settings.mongoUrl)
       mongo.MongoClient.connect(
