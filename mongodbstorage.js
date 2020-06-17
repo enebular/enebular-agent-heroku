@@ -21,7 +21,7 @@ var util = require('util')
 var settings
 
 var mongodb
-var appname
+var appname = require('./settings').mongoAppname || require('os').hostname()
 
 //var heartBeatLastSent = (new Date()).getTime();
 //
@@ -33,7 +33,7 @@ var appname
 //    }
 //}, 15000);
 
-function jconv(credentials) {
+export function jconv(credentials) {
   var jconvs = {}
   for (id in credentials) {
     jconvs[id.replace('_', '.')] = credentials[id]
@@ -41,7 +41,7 @@ function jconv(credentials) {
   return jconvs
 }
 
-function bconv(credentials) {
+export function bconv(credentials) {
   var bconvs = {}
   for (id in credentials) {
     bconvs[id.replace('.', '_')] = credentials[id]
@@ -84,7 +84,7 @@ const db = async () => {
   })
 }
 
-const getCollection = async (collectionName) => {
+export const getCollection = async (collectionName) => {
   const _db = await db()
   const _collection = await new Promise((resolve, reject) => {
     _db.collection(
@@ -110,7 +110,7 @@ const libCollection = async () => {
   return getCollection('nodered' + '-lib')
 }
 
-function close() {
+export function close() {
   return when.promise(function (resolve, reject, notify) {
     if (mongodb) {
       mongodb.close(true, function (err, result) {
@@ -150,7 +150,7 @@ function timeoutWrap(func) {
   })
 }
 
-const getCollectionData = async () => {
+export const getCollectionData = async () => {
   let collection = await mainCollection()
   let data = await new Promise((resolve, reject) => {
     collection.findOne({ appname: appname }, function (err, doc) {
@@ -256,7 +256,7 @@ function saveSettings(settings) {
   })
 }
 
-const saveDataToMongoDBCollection = async (data) => {
+export const saveDataToMongoDBCollection = async (data) => {
   return new Promise((resolve, reject) => {
     data['appname'] = appname
     mainCollection()

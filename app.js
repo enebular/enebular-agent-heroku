@@ -43,9 +43,9 @@ console.time('nodes install')
 installNodes()
   .then(() => {
     console.timeEnd('nodes install')
+    RED.start()
     var port = process.env.PORT || 1880
     server.listen(port)
-    RED.start()
   })
   .catch((err) => {
     console.timeEnd('nodes install')
