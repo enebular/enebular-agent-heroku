@@ -14,117 +14,12 @@
  * limitations under the License.
  **/
 
-var mongo = require('mongodb')
 var when = require('when')
-var util = require('util')
+var mutil = require('./mongodbutil')
 
 var settings
 
-var mongodb
 var appname = require('./settings').mongoAppname || require('os').hostname()
-
-//var heartBeatLastSent = (new Date()).getTime();
-//
-//setInterval(function () {
-//    var now = (new Date()).getTime();
-//    if (mongodb && now - heartBeatLastSent > 15000) {
-//        heartBeatLastSent = now;
-//        mongodb.command({ ping: 1}, function (err, result) {});
-//    }
-//}, 15000);
-
-export function jconv(credentials) {
-  var jconvs = {}
-  for (id in credentials) {
-    jconvs[id.replace('_', '.')] = credentials[id]
-  }
-  return jconvs
-}
-
-export function bconv(credentials) {
-  var bconvs = {}
-  for (id in credentials) {
-    bconvs[id.replace('.', '_')] = credentials[id]
-  }
-  return bconvs
-}
-
-const db = async () => {
-  return new Promise((resolve, reject) => {
-    if (!mongodb) {
-      mongo.MongoClient.connect(
-        settings.mongoUrl,
-        {
-          db: {
-            retryMiliSeconds: 1000,
-            numberOfRetries: 3
-          },
-          server: {
-            poolSize: 1,
-            auto_reconnect: true,
-            socketOptions: {
-              socketTimeoutMS: 10000,
-              keepAlive: 1
-            }
-          }
-        },
-        (err, _db) => {
-          if (err) {
-            util.log('Mongo DB error:' + err)
-            reject(err)
-          } else {
-            mongodb = _db
-            resolve(_db)
-          }
-        }
-      )
-    } else {
-      resolve(mongodb)
-    }
-  })
-}
-
-export const getCollection = async (collectionName) => {
-  const _db = await db()
-  const _collection = await new Promise((resolve, reject) => {
-    _db.collection(
-      settings.mongoCollection || collectionName,
-      (err, _collection) => {
-        if (err) {
-          util.log('Mongo DB error:' + err)
-          reject(err)
-        } else {
-          resolve(_collection)
-        }
-      }
-    )
-  })
-  return _collection
-}
-
-const mainCollection = async () => {
-  return getCollection('nodered')
-}
-
-const libCollection = async () => {
-  return getCollection('nodered' + '-lib')
-}
-
-export function close() {
-  return when.promise(function (resolve, reject, notify) {
-    if (mongodb) {
-      mongodb.close(true, function (err, result) {
-        if (err) {
-          util.log('Mongo DB error:' + err)
-          reject(err)
-        } else {
-          resolve()
-        }
-      })
-      mongodb = null
-    }
-  })
-}
 
 function timeoutWrap(func) {
   return when.promise(function (resolve, reject, notify) {
@@ -136,7 +31,8 @@ function timeoutWrap(func) {
     promise.otherwise(function (err) {
       console.log('TIMEOUT: ', func.name)
       if (err == 'timeout') {
-        close()
+        mutil
+          .close()
           .then(function () {
             resolve(func())
           })
@@ -150,25 +46,11 @@ function timeoutWrap(func) {
   })
 }
 
-export const getCollectionData = async () => {
-  let collection = await mainCollection()
-  let data = await new Promise((resolve, reject) => {
-    collection.findOne({ appname: appname }, function (err, doc) {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(doc)
-      }
-    })
-  })
-  return data
-}
-
 function getFlows() {
   console.log('getFlows')
   return when.promise(async (resolve, reject, notify) => {
     try {
-      const data = await getCollectionData()
+      const data = await mutil.getCollectionData(appname)
       if (data && data.flow) {
         resolve(data.flow)
       } else {
@@ -184,9 +66,9 @@ function saveFlows(flows) {
   console.log('saveFlows')
   return when.promise(async (resolve, reject, notify) => {
     try {
-      await saveDataToMongoDBCollection({ appname, flow: flows })
+      await mutil.saveDataToMongoDBCollection({ flow: flows }, appnme)
       let secureLink = process.env.SECURE_LINK
-      await saveDataToMongoDBCollection({ secureLink })
+      await mutil.saveDataToMongoDBCollection({ secureLink }, appname)
       resolve()
     } catch (err) {
       reject(err)
@@ -198,7 +80,7 @@ function getCredentials() {
   console.log('getCredentials')
   return when.promise(async (resolve, reject, notify) => {
     try {
-      const data = await getCollectionData()
+      const data = await mutil.getCollectionData(appname)
       if (data && data.credentials) {
         resolve(jconv(data.credentials))
       } else {
@@ -214,10 +96,12 @@ function saveCredentials(credentials) {
   console.log('saveCredentials')
   return when.promise(async (resolve, reject, notify) => {
     try {
-      await saveDataToMongoDBCollection({
-        appname,
-        credentials: bconv(credentials)
-      })
+      await mutil.saveDataToMongoDBCollection(
+        {
+          credentials: bconv(credentials)
+        },
+        appname
+      )
       resolve()
     } catch (err) {
       reject(err)
@@ -229,7 +113,7 @@ function getSettings() {
   console.log('getSettings')
   return when.promise(async (resolve, reject, notify) => {
     try {
-      const data = await getCollectionData()
+      const data = await mutil.getCollectionData(appname)
       if (data && data.settings) {
         resolve(jconv(data.settings))
       } else {
@@ -245,10 +129,12 @@ function saveSettings(settings) {
   console.log('saveSettings')
   return when.promise(async (resolve, reject, notify) => {
     try {
-      await saveDataToMongoDBCollection({
-        appname,
-        settings: bconv(settings)
-      })
+      await mutil.saveDataToMongoDBCollection(
+        {
+          settings: bconv(settings)
+        },
+        appname
+      )
       resolve()
     } catch (err) {
       reject(err)
@@ -256,33 +142,10 @@ function saveSettings(settings) {
   })
 }
 
-export const saveDataToMongoDBCollection = async (data) => {
-  return new Promise((resolve, reject) => {
-    data['appname'] = appname
-    mainCollection()
-      .then((collection) => {
-        collection.update(
-          { appname: appname },
-          { $set: data },
-          { upsert: true },
-          (err) => {
-            if (err) {
-              reject(err)
-            } else {
-              resolve()
-            }
-          }
-        )
-      })
-      .catch((err) => {
-        reject(err)
-      })
-  })
-}
-
 function getLibraryEntry(type, path) {
   var defer = when.defer()
-  libCollection()
+  mutil
+    .libCollection()
     .then(function (libCollection) {
       libCollection.findOne(
         { appname: appname, type: type, path: path },
@@ -335,7 +198,8 @@ function getLibraryEntry(type, path) {
 
 function saveLibraryEntry(type, path, meta, body) {
   var defer = when.defer()
-  libCollection()
+  mutil
+    .libCollection()
     .then(function (libCollection) {
       libCollection.update(
         { appname: appname, type: type, path: path },

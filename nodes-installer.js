@@ -4,39 +4,13 @@ const { promisify } = require('util')
 const { execFile } = require('child_process')
 const execFileAsync = promisify(execFile)
 const fs = require('fs')
-import {
-  bconv,
-  getCollection,
-  getCollectionData,
-  saveDataToMongoDBCollection,
-  close
-} from './mongodbstorage'
+const mutil = require('./mongodbutil')
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm'
 
-const privateNodeCollection = async () => {
-  return getCollection('nodered' + '-privatenode')
-}
-
-const removePrivateNodeCollection = async () => {
-  let collection = await privateNodeCollection()
-  await new Promise((resolve, reject) => {
-    collection.drop((err, delOK) => {
-      if (err) {
-        // ignore drop collection error because it's happend first time deploy
-        console.log('Failed to drop collection but ignored: ', err)
-        resolve()
-      } else {
-        if (delOK) {
-          console.log('Collection deleted')
-          resolve()
-        }
-      }
-    })
-  })
-}
+let appname
 
 const needDownloadFlow = async () => {
-  let doc = await getCollectionData()
+  let doc = await mutil.getCollectionData(appname)
   if (!process.env.SECURE_LINK) {
     console.log('***** SECURE_LINK', process.env.SECURE_LINK)
     return false
@@ -45,6 +19,21 @@ const needDownloadFlow = async () => {
     return false
   } else {
     return true
+  }
+}
+
+const savePrivateNodeFilesToMongoDB = async (packages) => {
+  console.log('savePrivateNodeFilesToMongoDB', packages)
+  if (!packages) {
+    return
+  }
+  for (let name in packages) {
+    if (
+      typeof packages[name] === 'object' &&
+      packages[name].type === 'privatenode'
+    ) {
+      await downloadAndSavePrivateNode(name, packages[name].url)
+    }
   }
 }
 
@@ -65,7 +54,7 @@ const downloadAndSavePrivateNode = async (packageName, url) => {
         'Failed to download privatenode: status code:' + res.statusCode
       )
     } else {
-      let collection = await privateNodeCollection()
+      let collection = await mutil.privateNodeCollection()
       let buffer = new Buffer.from(body)
       let base64str = buffer.toString('base64')
       let privateNodeInfo = { packageName: packageName, data: base64str }
@@ -83,21 +72,6 @@ const downloadAndSavePrivateNode = async (packageName, url) => {
   }
 }
 
-const savePrivateNodeFilesToMongoDB = async (packages) => {
-  console.log('savePrivateNodeFilesToMongoDB', packages)
-  if (!packages) {
-    return
-  }
-  for (let name in packages) {
-    if (
-      typeof packages[name] === 'object' &&
-      packages[name].type === 'privatenode'
-    ) {
-      await downloadAndSavePrivateNode(name, packages[name].url)
-    }
-  }
-}
-
 // npmを使ったインストールを行う
 // packageは以下の2パタンのパッケージ文字列の配列
 // ・<package name>@<version>
@@ -111,7 +85,7 @@ const installNPMModule = async (packages) => {
 
 const getPrivateNodePackageStringForInstall = async (packageName) => {
   console.log('installPrivateNodePackage:' + packageName)
-  const collection = await privateNodeCollection()
+  const collection = await mutil.privateNodeCollection()
   let doc = await new Promise((resolve, reject) => {
     collection.findOne({ packageName: packageName }, (err, doc) => {
       if (err) {
@@ -182,11 +156,6 @@ const installPackages = async (packages) => {
   })
 }
 
-const removeMongoDBData = async () => {
-  await removePrivateNodeCollection()
-  await saveDataToMongoDBCollection({ settings: null })
-}
-
 // enebular
 // Save flow/credentials/packages/secureLink information to MongoDB
 // Save PrivateNode to MongoDB if exists
@@ -195,7 +164,8 @@ const prepareEnebularFlow = async () => {
   if (!url) {
     throw new Error('SECURE_LINK not defined')
   }
-  await removeMongoDBData()
+  await mutil.removePrivateNodeCollection()
+  await mutil.saveDataToMongoDBCollection({ settings: null }, appname)
   const data = await new Promise((resolve, reject) => {
     request.get({ url: url, json: false }, (err, res, body) => {
       if (err) {
@@ -211,20 +181,27 @@ const prepareEnebularFlow = async () => {
     })
   })
   let flow = data && data.flow ? data.flow : []
-  await saveDataToMongoDBCollection({ flow })
+  await mutil.saveDataToMongoDBCollection({ flow }, appname)
   let credentials = data && data.cred ? data.cred : {}
-  await saveDataToMongoDBCollection({
-    credentials: bconv(credentials)
-  })
+  await mutil.saveDataToMongoDBCollection(
+    {
+      credentials: bconv(credentials)
+    },
+    appname
+  )
   if (data && data.packages) {
-    await saveDataToMongoDBCollection({ packages: data.packages })
+    await mutil.saveDataToMongoDBCollection(
+      { packages: data.packages },
+      appname
+    )
     await savePrivateNodeFilesToMongoDB(data.packages)
   }
-  await saveDataToMongoDBCollection({ secureLink: url })
+  await mutil.saveDataToMongoDBCollection({ secureLink: url }, appname)
 }
 
 const installNodes = async () => {
   try {
+    appname = require('./settings').mongoAppname || require('os').hostname()
     console.log('Presigned URLからFlowの取得が必要か判定')
     const need = await needDownloadFlow()
     if (need) {
