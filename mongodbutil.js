@@ -162,6 +162,7 @@ const close = () => {
 
 exports.jconv = jconv
 exports.bconv = bconv
+exports.db = db
 exports.getCollection = getCollection
 exports.mainCollection = mainCollection
 exports.libCollection = libCollection

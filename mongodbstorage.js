@@ -225,7 +225,7 @@ var mongostorage = {
     appname = settings.mongoAppname || require('os').hostname()
     return when.promise(async (resolve, reject, notify) => {
       try {
-        const _db = await db()
+        const _db = await mutil.db()
         resolve(_db)
       } catch (err) {
         reject(err)
