@@ -18,8 +18,7 @@ var when = require('when')
 var mutil = require('./mongodbutil')
 
 var settings
-
-var appname = require('./settings').mongoAppname || require('os').hostname()
+var appname
 
 function timeoutWrap(func) {
   return when.promise(function (resolve, reject, notify) {
