@@ -185,7 +185,7 @@ const prepareEnebularFlow = async () => {
   let credentials = data && data.cred ? data.cred : {}
   await mutil.saveDataToMongoDBCollection(
     {
-      credentials: bconv(credentials)
+      credentials: mutil.bconv(credentials)
     },
     appname
   )
