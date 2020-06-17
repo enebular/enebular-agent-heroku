@@ -6,7 +6,7 @@ var settings
 
 var mongodb
 
-exports.jconv = (credentials) => {
+const jconv = (credentials) => {
   var jconvs = {}
   for (id in credentials) {
     jconvs[id.replace('_', '.')] = credentials[id]
@@ -14,7 +14,7 @@ exports.jconv = (credentials) => {
   return jconvs
 }
 
-exports.bconv = (credentials) => {
+const bconv = (credentials) => {
   var bconvs = {}
   for (id in credentials) {
     bconvs[id.replace('.', '_')] = credentials[id]
@@ -22,7 +22,7 @@ exports.bconv = (credentials) => {
   return bconvs
 }
 
-exports.db = async () => {
+const db = async () => {
   return new Promise((resolve, reject) => {
     if (!mongodb) {
       mongo.MongoClient.connect(
@@ -57,7 +57,7 @@ exports.db = async () => {
   })
 }
 
-exports.getCollection = async (collectionName) => {
+const getCollection = async (collectionName) => {
   const _db = await db()
   const _collection = await new Promise((resolve, reject) => {
     _db.collection(
@@ -75,15 +75,15 @@ exports.getCollection = async (collectionName) => {
   return _collection
 }
 
-exports.mainCollection = async () => {
+const mainCollection = async () => {
   return getCollection('nodered')
 }
 
-exports.libCollection = async () => {
+const libCollection = async () => {
   return getCollection('nodered' + '-lib')
 }
 
-exports.getCollectionData = async (appname) => {
+const getCollectionData = async (appname) => {
   let collection = await mainCollection()
   let data = await new Promise((resolve, reject) => {
     collection.findOne({ appname: appname }, function (err, doc) {
@@ -97,7 +97,7 @@ exports.getCollectionData = async (appname) => {
   return data
 }
 
-exports.saveDataToMongoDBCollection = async (data, appname) => {
+const saveDataToMongoDBCollection = async (data, appname) => {
   return new Promise((resolve, reject) => {
     data['appname'] = appname
     mainCollection()
@@ -121,11 +121,11 @@ exports.saveDataToMongoDBCollection = async (data, appname) => {
   })
 }
 
-exports.privateNodeCollection = async () => {
+const privateNodeCollection = async () => {
   return getCollection('nodered' + '-privatenode')
 }
 
-exports.removePrivateNodeCollection = async () => {
+const removePrivateNodeCollection = async () => {
   let collection = await privateNodeCollection()
   await new Promise((resolve, reject) => {
     collection.drop((err, delOK) => {
@@ -143,7 +143,7 @@ exports.removePrivateNodeCollection = async () => {
   })
 }
 
-exports.close = () => {
+const close = () => {
   return when.promise(function (resolve, reject, notify) {
     if (mongodb) {
       mongodb.close(true, function (err, result) {
@@ -158,3 +158,14 @@ exports.close = () => {
     }
   })
 }
+
+exports.jconv = jconv
+exports.bconv = bconv
+exports.getCollection = getCollection
+exports.mainCollection = mainCollection
+exports.libCollection = libCollection
+exports.getCollectionData = getCollectionData
+exports.saveDataToMongoDBCollection = saveDataToMongoDBCollection
+exports.privateNodeCollection = privateNodeCollection
+exports.removePrivateNodeCollection = removePrivateNodeCollection
+exports.close = close
