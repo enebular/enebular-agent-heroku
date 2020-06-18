@@ -65,7 +65,7 @@ function saveFlows(flows) {
   console.log('saveFlows')
   return when.promise(async (resolve, reject, notify) => {
     try {
-      await mutil.saveDataToMongoDBCollection({ flow: flows }, appnme)
+      await mutil.saveDataToMongoDBCollection({ flow: flows }, appname)
       let secureLink = process.env.SECURE_LINK
       await mutil.saveDataToMongoDBCollection({ secureLink }, appname)
       resolve()

@@ -13,6 +13,10 @@
     "PASSWORD": {
       "description": "password",
       "value": "password"
+    },
+    "AGENT_HEROKU_VERSION": {
+      "description": "versioin of enebular agent heroku (do not change)",
+      "value": "1.1.0"
     }
   },
   "addons": [ "mongolab" ]
