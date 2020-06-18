@@ -209,7 +209,7 @@ const installNodes = async () => {
       await prepareEnebularFlow()
     }
     // Node-REDのノード(プライベートノード含む)のインストール
-    const data = await mutil.getCollectionData()
+    const data = await mutil.getCollectionData(appname)
     if (data && data.packages) {
       await installPackages(data.packages)
     }
