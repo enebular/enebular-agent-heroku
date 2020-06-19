@@ -8,6 +8,7 @@ var mongodb
 // ・先頭に_を入れる($始まりは許されないため)
 // ・.を_に変更する
 const bconv = (credentials) => {
+  console.log('bconv credentials', credentials)
   var bconvs = {}
   for (id in credentials) {
     bconvs['_' + id.replace('.', '_')] = credentials[id]
@@ -16,10 +17,13 @@ const bconv = (credentials) => {
 }
 // mongodbから取得する際に元のキーに戻す
 const jconv = (credentials) => {
+  console.log('jconv credentials', credentials)
   var jconvs = {}
   for (id in credentials) {
-    id = id.substring(1)
-    jconvs[id.replace('_', '.')] = credentials[id]
+    if (id) {
+      id = id.substring(1)
+      jconvs[id.replace('_', '.')] = credentials[id]
+    }
   }
   return jconvs
 }
