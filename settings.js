@@ -59,7 +59,6 @@ var settings = {
   }
 }
 
-console.log(' ////////////////// ', process.env.ISSUER)
 if (process.env.ISSUER) {
   settings.storageModule = require('./mongodbstorage')
   settings.enebularHost = process.env.ISSUER || 'http://localhost:7000'
@@ -71,7 +70,6 @@ if (process.env.ISSUER) {
     process.env.MONGO_URI ||
     process.env.MONGOLAB_URI ||
     'mongodb://localhost:27017/enebular-heroku'
-  console.log(' ////////////////// ', settings.mongoUrl)
   settings.mongoAppname = 'enebular'
 } else {
   settings.userDir = path.join(__dirname)

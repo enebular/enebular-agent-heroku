@@ -8,7 +8,6 @@ var mongodb
 // ・先頭に_を入れる($始まりは許されないため)
 // ・.を_に変更する
 const bconv = (credentials) => {
-  console.log('bconv credentials', credentials)
   var bconvs = {}
   for (id in credentials) {
     bconvs['_' + id.replace('.', '_')] = credentials[id]
@@ -17,7 +16,6 @@ const bconv = (credentials) => {
 }
 // mongodbから取得する際に元のキーに戻す
 const jconv = (credentials) => {
-  console.log('jconv credentials', credentials)
   var jconvs = {}
   for (id in credentials) {
     let newid = id.substring(1)
@@ -30,8 +28,6 @@ const db = async () => {
   return new Promise((resolve, reject) => {
     if (!mongodb) {
       settings = require('./settings')
-      console.log('test******************', settings)
-      console.log('test******************', settings.mongoUrl)
       mongo.MongoClient.connect(
         settings.mongoUrl,
         {

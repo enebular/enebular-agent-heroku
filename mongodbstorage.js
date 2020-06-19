@@ -92,7 +92,7 @@ function getCredentials() {
 }
 
 function saveCredentials(credentials) {
-  console.log('saveCredentials', credentials)
+  console.log('saveCredentials')
   return when.promise(async (resolve, reject, notify) => {
     try {
       await mutil.saveDataToMongoDBCollection(
