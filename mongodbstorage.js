@@ -125,7 +125,10 @@ function getSettings() {
 }
 
 function saveSettings(settings) {
-  console.log('saveSettings')
+  console.log('saveSettings', settings)
+  console.log('credentialSecret', settings.credentialSecret)
+  console.log('.credentialSecret', settings['.credentialSecret'])
+  console.log('_credentialSecret', settings['_credentialSecret'])
   return when.promise(async (resolve, reject, notify) => {
     try {
       await mutil.saveDataToMongoDBCollection(

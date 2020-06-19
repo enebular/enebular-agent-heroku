@@ -165,7 +165,7 @@ const prepareEnebularFlow = async () => {
     throw new Error('SECURE_LINK not defined')
   }
   await mutil.removePrivateNodeCollection()
-  await mutil.saveDataToMongoDBCollection({ settings: null }, appname)
+  await mutil.saveDataToMongoDBCollection({ settings: {} }, appname)
   const data = await new Promise((resolve, reject) => {
     request.get({ url: url, json: false }, (err, res, body) => {
       if (err) {
