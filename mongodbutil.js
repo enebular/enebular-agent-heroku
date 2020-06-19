@@ -20,10 +20,8 @@ const jconv = (credentials) => {
   console.log('jconv credentials', credentials)
   var jconvs = {}
   for (id in credentials) {
-    if (id) {
-      id = id.substring(1)
-      jconvs[id.replace('_', '.')] = credentials[id]
-    }
+    let newid = id.substring(1)
+    jconvs[newid.replace('_', '.')] = credentials[id]
   }
   return jconvs
 }
