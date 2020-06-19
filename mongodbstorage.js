@@ -272,6 +272,19 @@ var mongostorage = {
     return timeoutWrap(function () {
       return saveLibraryEntry(type, path, meta, body)
     })
+  },
+  mapNodeTypes: function (flows, credentials) {
+    // extract credential type from flows
+    for (let props in credentials) {
+      for (let i = 0; i < flows.length; i++) {
+        const item = flows[i]
+        if (item.id === props) {
+          credentials[props].type = item.type
+          break
+        }
+      }
+    }
+    return credentials
   }
 }
 
