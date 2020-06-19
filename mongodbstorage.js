@@ -114,7 +114,8 @@ function getSettings() {
     try {
       const data = await mutil.getCollectionData(appname)
       if (data && data.settings) {
-        resolve(mutil.jconv(data.settings))
+        //        resolve(mutil.jconv(data.settings))
+        resolve(data.settings)
       } else {
         resolve({})
       }
@@ -125,15 +126,13 @@ function getSettings() {
 }
 
 function saveSettings(settings) {
-  console.log('saveSettings', settings)
-  console.log('credentialSecret', settings.credentialSecret)
-  console.log('.credentialSecret', settings['.credentialSecret'])
-  console.log('_credentialSecret', settings['_credentialSecret'])
+  console.log('saveSettings')
   return when.promise(async (resolve, reject, notify) => {
     try {
       await mutil.saveDataToMongoDBCollection(
         {
-          settings: mutil.bconv(settings)
+          //          settings: mutil.bconv(settings)
+          settings: settings
         },
         appname
       )
