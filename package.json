@@ -23,7 +23,6 @@
     "mongodb": "^2.2.24",
     "node-red-contrib-pubnub": "^4.0.2",
     "node-red-contrib-firebase-data": "0.0.10",
-    "node-red-node-pi-gpio": "1.1.1",
     "request": "^2.65.0",
     "uuid": "^2.0.1",
     "when": "~3.x"
