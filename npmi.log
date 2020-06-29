@@ -1,0 +1,12 @@
+
+> bufferutil@1.2.1 install /Users/p578/dev/agent-heroku/ev2-nodejs12/enebular-agent-heroku/node_modules/bufferutil
+> node-gyp rebuild
+
+  CXX(target) Release/obj.target/bufferutil/src/bufferutil.o
+
+> serialport@3.1.2 install /Users/p578/dev/agent-heroku/ev2-nodejs12/enebular-agent-heroku/node_modules/serialport
+> node-pre-gyp install --fallback-to-build
+
+  CXX(target) Release/obj.target/serialport/src/serialport.o
+  CXX(target) Release/obj.target/serialport/src/serialport.o
+Failed to execute '/Users/p578/.nvm/versions/node/v12.13.0/bin/node /Users/p578/.nvm/versions/node/v12.13.0/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js build --fallback-to-build --module=/Users/p578/dev/agent-heroku/ev2-nodejs12/enebular-agent-heroku/node_modules/serialport/build/Release/serialport.node --module_name=serialport --module_path=/Users/p578/dev/agent-heroku/ev2-nodejs12/enebular-agent-heroku/node_modules/serialport/build/Release' (1)

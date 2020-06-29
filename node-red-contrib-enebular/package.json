@@ -2,14 +2,13 @@
   "name": "node-red-contrib-enebular",
   "version": "0.0.1",
   "engines": {
-    "node": "4.2.x"
+    "node": "12.14.0"
   },
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
     "htmlspecialchars": "^1.0.5",
-    "milkcocoa": "^0.4.1",
     "request": "^2.65.0",
     "when": "~3.x"
   },
