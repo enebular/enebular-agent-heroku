@@ -39,14 +39,14 @@ var settings = {
   },
   adminAuth: {
     type: 'credentials',
-    users: function(username) {
+    users: function (username) {
       if (process.env.USERNAME == username) {
         return when.resolve({ username: username, permissions: '*' })
       } else {
         return when.resolve(null)
       }
     },
-    authenticate: function(username, password) {
+    authenticate: function (username, password) {
       if (
         process.env.USERNAME == username &&
         process.env.PASSWORD == password

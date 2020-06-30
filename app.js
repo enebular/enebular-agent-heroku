@@ -7,6 +7,7 @@ var RED = require('@uhuru/enebular-node-red')
 var settings = require('./settings')
 var bodyParser = require('body-parser')
 var app = express()
+var installNodes = require('./nodes-installer')
 
 var server = http.createServer(app)
 
@@ -34,11 +35,20 @@ app.set('view engine', 'ejs')
 RED.init(server, settings)
 app.use(settings.httpAdminRoot, RED.httpAdmin)
 app.use(settings.httpNodeRoot, RED.httpNode)
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
   res.redirect('/red')
 })
 
-var port = process.env.PORT || 1880
-server.listen(port)
-
-RED.start()
+console.time('nodes install')
+installNodes()
+  .then(() => {
+    console.timeEnd('nodes install')
+    RED.start()
+    var port = process.env.PORT || 1880
+    server.listen(port)
+  })
+  .catch((err) => {
+    console.timeEnd('nodes install')
+    //TODO: エラーの場合はDynoの再起動を促すように例外をスローすべきか検討必要
+    console.error('privatenode install error', err)
+  })
