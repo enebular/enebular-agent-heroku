@@ -13,9 +13,12 @@ var server = http.createServer(app)
 
 app.use(
   bodyParser.urlencoded({
-    extended: true
+    extended: true,
+    limit: '10mb',
   })
 )
+
+app.use(bodyParser.json({ extended: true, limit: '10mb' }))
 
 app.use(session({ secret: '4r13ysgyYD' }))
 
