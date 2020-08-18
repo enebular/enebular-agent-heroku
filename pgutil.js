@@ -22,7 +22,7 @@ const createTable = async () => {
     await client.query(query)
     client.release()
   } catch (err) {
-    console.error(err)
+    console.error('pgutil error', err)
   }
 }
 
