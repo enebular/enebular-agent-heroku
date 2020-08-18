@@ -21,8 +21,9 @@
     "express-session": "^1.11.3",
     "jsonwebtoken": "^5.0.4",
     "mongodb": "^2.2.24",
-    "node-red-contrib-pubnub": "^4.0.2",
     "node-red-contrib-firebase-data": "0.0.10",
+    "node-red-contrib-pubnub": "^4.0.2",
+    "pg": "^8.3.0",
     "request": "^2.65.0",
     "uuid": "^2.0.1",
     "when": "~3.x"

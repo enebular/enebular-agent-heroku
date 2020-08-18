@@ -42,6 +42,12 @@ app.get('/', function (req, res) {
   res.redirect('/red')
 })
 
+//TEST
+const pgutil = require('./pgutil')
+pgutil.initPG()
+pgutil.createTable()
+//TEST
+
 console.time('nodes install')
 installNodes()
   .then(() => {
