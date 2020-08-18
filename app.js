@@ -45,8 +45,9 @@ app.get('/', function (req, res) {
 //TEST
 const pgutil = require('./pgutil')
 pgutil.initPG()
-await pgutil.createTable()
-console.log('pgutil end')
+pgutil.createTable().then(() => {
+  console.log('pgutil end')
+})
 //TEST
 
 console.time('nodes install')
