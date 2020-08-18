@@ -15,9 +15,9 @@ const createTable = async () => {
     if (!pool) throw new Error('No PG instance')
     const client = await pool.connect()
     const query = `
-    CREATE TABLE nodereddata {
+    CREATE TABLE nodereddata (
       data varchar 
-    }
+    )
   `
     await client.query(query)
     client.release()
