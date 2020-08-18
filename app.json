@@ -1,5 +1,5 @@
 {
-  "name": "enebular-oneoff-app",
+  "name": "enebular-agent-heroku",
   "description": "The enebular oneoff app is used to Data Management. For more about enebular see enebular.com.",
   "keywords": ["enebular", "IoT", "Internet of Things", "node.js", "node"],
   "website": "https://enebular.com/",
@@ -16,8 +16,16 @@
     },
     "AGENT_HEROKU_VERSION": {
       "description": "versioin of enebular agent heroku (do not change)",
-      "value": "1.1.3"
+      "value": "2.0.0"
     }
   },
-  "addons": ["mongolab"]
+  "addons": [
+    {
+      "plan": "heroku-postgresql:hobby-dev",
+      "options": {
+        "version": "12"
+      }
+    },
+    "mongolab"
+  ]
 }
