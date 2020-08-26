@@ -8,6 +8,9 @@ var settings = require('./settings')
 var bodyParser = require('body-parser')
 var app = express()
 var installNodes = require('./nodes-installer')
+const pgutil = require('./pgutil')
+
+pgutil.initPG()
 
 var server = http.createServer(app)
 
@@ -41,14 +44,6 @@ app.use(settings.httpNodeRoot, RED.httpNode)
 app.get('/', function (req, res) {
   res.redirect('/red')
 })
-
-//TEST
-const pgutil = require('./pgutil')
-pgutil.initPG()
-pgutil.createTable().then(() => {
-  console.log('pgutil end')
-})
-//TEST
 
 console.time('nodes install')
 installNodes()

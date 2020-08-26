@@ -8,193 +8,156 @@ const initPG = () => {
   const pgUrl = process.env.DATABASE_URL
   console.log('pgUrl', pgUrl)
   pool = new pg.Pool({ connectionString: pgUrl })
+  return pool
 }
 
 const createTable = async () => {
+  if (!pool) throw new Error('No PG instance')
+  const query = `
+    CREATE TABLE IF NOT EXISTS eConfigs (
+      id SERIAL PRIMARY KEY,
+      appname character varying(255) NOT NULL,
+      flows text,
+      credentials text,
+      packages: text,
+      settings text,
+      secureLink text
+    );
+    CREATE TABLE IF NOT EXISTS eLibs (
+      id SERIAL PRIMARY KEY,
+      appname character varying(255) NOT NULL,
+      type text,
+      path text,
+      meta text,
+      body text
+    );
+    CREATE TABLE IF NOT EXISTS ePrivateNodes (
+      id SERIAL PRIMARY KEY,
+      appname character varying(255) NOT NULL,
+      packageName text,
+      data text
+    );
+  `
+  await doSQL(query, null)
+}
+
+const doSQL = async (query, values) => {
   try {
     if (!pool) throw new Error('No PG instance')
     const client = await pool.connect()
-    const query = `
-    CREATE TABLE nodereddata (
-      data varchar 
-    )
-  `
-    await client.query(query)
+    return await client.query(query, values)
+  } finally {
     client.release()
-  } catch (err) {
-    console.error('pgutil error', err)
   }
 }
 
-// mongodbに保存できるようにキーに以下の変更を加える
-// ・先頭に_を入れる($始まりは許されないため)
-// ・.を_に変更する
-const bconv = (credentials) => {
-  var bconvs = {}
-  for (id in credentials) {
-    bconvs['_' + id.replace('.', '_')] = credentials[id]
-  }
-  return bconvs
-}
-// mongodbから取得する際に元のキーに戻す
-const jconv = (credentials) => {
-  var jconvs = {}
-  for (id in credentials) {
-    let newid = id.substring(1)
-    jconvs[newid.replace('_', '.')] = credentials[id]
-  }
-  return jconvs
-}
-
-const db = async () => {
-  return new Promise((resolve, reject) => {
-    if (!mongodb) {
-      settings = require('./settings')
-      mongo.MongoClient.connect(
-        settings.mongoUrl,
-        {
-          db: {
-            retryMiliSeconds: 1000,
-            numberOfRetries: 3,
-          },
-          server: {
-            poolSize: 1,
-            auto_reconnect: true,
-            socketOptions: {
-              socketTimeoutMS: 10000,
-              keepAlive: 1,
-            },
-          },
-        },
-        (err, _db) => {
-          if (err) {
-            util.log('Mongo DB error:' + err)
-            reject(err)
-          } else {
-            mongodb = _db
-            resolve(_db)
-          }
-        }
-      )
-    } else {
-      resolve(mongodb)
+const loadConfig = async (appname) => {
+  const query = 'SELECT * FROM eConfigs WHERE appname = $1'
+  const data = await doSQL(query, [appname])
+  if (data && data.rowCount > 0) {
+    let retData = data.rows[0]
+    for (let key in retData) {
+      if (retData[key]) {
+        retData[key] = JSON.parse(retData[key])
+      }
     }
-  })
+    return retData
+  }
+  return null
 }
 
-const getCollection = async (collectionName) => {
-  const _db = await db()
-  const _collection = await new Promise((resolve, reject) => {
-    _db.collection(
-      settings.mongoCollection || collectionName,
-      (err, _collection) => {
-        if (err) {
-          util.log('Mongo DB error:' + err)
-          reject(err)
-        } else {
-          resolve(_collection)
-        }
-      }
-    )
-  })
-  return _collection
+const saveConfig = async (appname, params) => {
+  const columns = [
+    'appname',
+    'flows',
+    'credentials',
+    'packages',
+    'settings',
+    'secureLink',
+    'id',
+  ]
+  let data = await loadConfig(appname)
+  let query
+  let values
+  if (data !== null) {
+    data = Object.assign(data, params)
+    query =
+      'UPDATE eConfig SET appname = $1, flows = $2, credentials = $3, packages = $4, settings = $5, secureLink = $6 WHERE id = $7 RETURNING *'
+  } else {
+    data = params
+    query =
+      'INSERT INTO eConfigs(appname, flows, credentials, packages, settings, secureLink) VALUES($1, $2, $3, $4, $5, $6) RETURNING *'
+  }
+  values = columns.map((c) => (data[c] ? JSON.stringify(data[c]) : null))
+  await doSQL(query, values)
 }
 
-const mainCollection = async () => {
-  return getCollection('nodered')
+const loadLib = async (appname, type, path) => {
+  const query =
+    'SELECT * FROM eLibs WHERE appname = $1 and type = $2 and path = $3'
+  const data = await doSQL(query, [appname, type, path])
+  if (data && data.rowCount > 0) {
+    return data.rows[0]
+  }
+  return null
 }
 
-const libCollection = async () => {
-  return getCollection('nodered' + '-lib')
+const saveLib = async (appname, params) => {
+  const columns = ['appname', 'type', 'path', 'meta', 'body', 'id']
+  let data = await loadLib(appname, params.type, params.path)
+  let query
+  let values
+  if (data !== null) {
+    data = Object.assign(data, params)
+    query =
+      'UPDATE eLibs SET appname = $1, type = $2, path = $3, meta = $4, body = $5 WHERE id = $6 RETURNING *'
+  } else {
+    data = params
+    query =
+      'INSERT INTO eLibs(appname, type, path, meta, body) VALUES($1, $2, $3, $4, $5) RETURNING *'
+  }
+  values = columns.map((c) => (data[c] ? JSON.stringify(data[c]) : null))
+  await doSQL(query, values)
 }
 
-const getCollectionData = async (appname) => {
-  let collection = await mainCollection()
-  let data = await new Promise((resolve, reject) => {
-    collection.findOne({ appname: appname }, function (err, doc) {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(doc)
-      }
-    })
-  })
-  return data
+const loadPrivateNodes = async (appname, packageName) => {
+  const query =
+    'SELECT * FROM ePrivateNodes WHERE appname = $1 and packageName = $2'
+  const data = await doSQL(query, [appname, packageName])
+  if (data && data.rowCount > 0) {
+    return data.rows[0]
+  }
+  return null
 }
 
-const saveDataToMongoDBCollection = async (data, appname) => {
-  return new Promise((resolve, reject) => {
-    data['appname'] = appname
-    mainCollection()
-      .then((collection) => {
-        collection.update(
-          { appname: appname },
-          { $set: data },
-          { upsert: true },
-          (err) => {
-            if (err) {
-              reject(err)
-            } else {
-              resolve()
-            }
-          }
-        )
-      })
-      .catch((err) => {
-        reject(err)
-      })
-  })
+const savePrivateNodes = async (appname, params) => {
+  const columns = ['appname', 'packageName', 'data', 'id']
+  let data = await loadPrivateNodes(appname, params.packageName)
+  let query
+  let values
+  if (data !== null) {
+    data = Object.assign(data, params)
+    query =
+      'UPDATE ePrivateNodes SET appname = $1, packageName = $2, data = $3 WHERE id = $4 RETURNING *'
+  } else {
+    data = params
+    query =
+      'INSERT INTO ePrivateNodes(appname, packageName, data) VALUES($1, $2, $3) RETURNING *'
+  }
+  values = columns.map((c) => (data[c] ? JSON.stringify(data[c]) : null))
+  await doSQL(query, values)
 }
 
-const privateNodeCollection = async () => {
-  return getCollection('nodered' + '-privatenode')
+const removePrivateNodes = async (appname) => {
+  const query = 'DELETE FROM ePrivateNodes WHERE appname = $1'
+  await doSQL(query, [appname])
 }
-
-const removePrivateNodeCollection = async () => {
-  let collection = await privateNodeCollection()
-  await new Promise((resolve, reject) => {
-    collection.drop((err, delOK) => {
-      if (err) {
-        // ignore drop collection error because it's happend first time deploy
-        console.log('Failed to drop collection but ignored: ', err)
-        resolve()
-      } else {
-        if (delOK) {
-          console.log('Collection deleted')
-          resolve()
-        }
-      }
-    })
-  })
-}
-
-const close = () => {
-  return when.promise(function (resolve, reject, notify) {
-    if (mongodb) {
-      mongodb.close(true, function (err, result) {
-        if (err) {
-          util.log('Mongo DB error:' + err)
-          reject(err)
-        } else {
-          resolve()
-        }
-      })
-      mongodb = null
-    }
-  })
-}
-
-exports.jconv = jconv
-exports.bconv = bconv
-exports.db = db
-exports.getCollection = getCollection
-exports.mainCollection = mainCollection
-exports.libCollection = libCollection
-exports.getCollectionData = getCollectionData
-exports.saveDataToMongoDBCollection = saveDataToMongoDBCollection
-exports.privateNodeCollection = privateNodeCollection
-exports.removePrivateNodeCollection = removePrivateNodeCollection
-exports.close = close
 
 exports.initPG = initPG
 exports.createTable = createTable
+exports.loadConfig = loadConfig
+exports.saveConfig = saveConfig
+exports.loadLib = loadLib
+exports.saveLib = saveLib
+exports.loadPrivateNodes = savePrivateNodes
+exports.removePrivateNodes = removePrivateNodes
