@@ -144,7 +144,7 @@ const saveLib = async (appname, params) => {
 
 const loadPrivateNodes = async (appname, packageName) => {
   const query =
-    'SELECT * FROM "ePrivateNodes" WHERE appname = $1 and packageName = $2'
+    'SELECT * FROM "ePrivateNodes" WHERE appname = $1 and "packageName" = $2'
   const data = await doSQL(query, [
     JSON.stringify(appname),
     JSON.stringify(packageName),
