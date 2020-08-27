@@ -93,9 +93,10 @@ const saveConfig = async (appname, params) => {
     query =
       'INSERT INTO eConfigs(appname, flows, credentials, packages, settings, secureLink) VALUES($1, $2, $3, $4, $5, $6) RETURNING *'
     values = columns
-      .slice(0, 5)
+      .slice(0, 6)
       .map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   }
+  console.log('****************** data', JSON.stringify(data))
   console.log('****************** query', query)
   console.log('****************** values', JSON.stringify(values))
   await doSQL(query, values)
@@ -126,7 +127,7 @@ const saveLib = async (appname, params) => {
     query =
       'INSERT INTO eLibs(appname, type, path, meta, body) VALUES($1, $2, $3, $4, $5) RETURNING *'
     values = columns
-      .slice(0, 4)
+      .slice(0, 5)
       .map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   }
   console.log('****************** query', query)
@@ -159,7 +160,7 @@ const savePrivateNodes = async (appname, params) => {
     query =
       'INSERT INTO ePrivateNodes(appname, packageName, data) VALUES($1, $2, $3) RETURNING *'
     values = columns
-      .slice(0, 2)
+      .slice(0, 3)
       .map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   }
   console.log('****************** query', query)
