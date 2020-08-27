@@ -20,7 +20,7 @@ const createTable = async () => {
       appname character varying(255) NOT NULL,
       flows text,
       credentials text,
-      packages: text,
+      packages text,
       settings text,
       secureLink text
     );
