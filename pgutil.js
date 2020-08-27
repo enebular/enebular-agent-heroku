@@ -190,5 +190,6 @@ exports.loadConfig = loadConfig
 exports.saveConfig = saveConfig
 exports.loadLib = loadLib
 exports.saveLib = saveLib
-exports.loadPrivateNodes = savePrivateNodes
+exports.loadPrivateNodes = loadPrivateNodes
+exports.savePrivateNodes = savePrivateNodes
 exports.removePrivateNodes = removePrivateNodes
