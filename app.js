@@ -59,7 +59,7 @@ if (process.env.SECURE_LINK) {
     .catch((err) => {
       console.timeEnd('nodes install')
       //TODO: エラーの場合はDynoの再起動を促すように例外をスローすべきか検討必要
-      console.error('privatenode install error', err)
+      console.error('install error', err)
     })
 } else {
   console.log('secure link not found')

@@ -87,14 +87,14 @@ const saveConfig = async (appname, params) => {
     data = Object.assign(data, params)
     query =
       'UPDATE eConfig SET appname = $1, flows = $2, credentials = $3, packages = $4, settings = $5, secureLink = $6 WHERE id = $7 RETURNING *'
-    values = columns.map((c) => (data[c] ? JSON.stringify(data[c]) : null))
+    values = columns.map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   } else {
     data = params
     query =
       'INSERT INTO eConfigs(appname, flows, credentials, packages, settings, secureLink) VALUES($1, $2, $3, $4, $5, $6) RETURNING *'
     values = columns
       .slice(0, 5)
-      .map((c) => (data[c] ? JSON.stringify(data[c]) : null))
+      .map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   }
   await doSQL(query, values)
 }
@@ -118,14 +118,14 @@ const saveLib = async (appname, params) => {
     data = Object.assign(data, params)
     query =
       'UPDATE eLibs SET appname = $1, type = $2, path = $3, meta = $4, body = $5 WHERE id = $6 RETURNING *'
-    values = columns.map((c) => (data[c] ? JSON.stringify(data[c]) : null))
+    values = columns.map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   } else {
     data = params
     query =
       'INSERT INTO eLibs(appname, type, path, meta, body) VALUES($1, $2, $3, $4, $5) RETURNING *'
     values = columns
       .slice(0, 4)
-      .map((c) => (data[c] ? JSON.stringify(data[c]) : null))
+      .map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   }
   await doSQL(query, values)
 }
@@ -149,14 +149,14 @@ const savePrivateNodes = async (appname, params) => {
     data = Object.assign(data, params)
     query =
       'UPDATE ePrivateNodes SET appname = $1, packageName = $2, data = $3 WHERE id = $4 RETURNING *'
-    values = columns.map((c) => (data[c] ? JSON.stringify(data[c]) : null))
+    values = columns.map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   } else {
     data = params
     query =
       'INSERT INTO ePrivateNodes(appname, packageName, data) VALUES($1, $2, $3) RETURNING *'
     values = columns
       .slice(0, 2)
-      .map((c) => (data[c] ? JSON.stringify(data[c]) : null))
+      .map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   }
   await doSQL(query, values)
 }
