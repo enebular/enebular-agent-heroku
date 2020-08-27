@@ -35,7 +35,7 @@ const createTable = async () => {
     CREATE TABLE IF NOT EXISTS "ePrivateNodes" (
       id SERIAL PRIMARY KEY,
       appname character varying(255) NOT NULL,
-      packageName text,
+      "packageName" text,
       data text
     );
   `
@@ -163,16 +163,17 @@ const savePrivateNodes = async (appname, params) => {
   if (data) {
     data = Object.assign(data, params)
     query =
-      'UPDATE "ePrivateNodes" SET appname = $1, packageName = $2, data = $3 WHERE id = $4 RETURNING *'
+      'UPDATE "ePrivateNodes" SET appname = $1, "packageName" = $2, data = $3 WHERE id = $4 RETURNING *'
     values = columns.map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   } else {
     data = params
     query =
-      'INSERT INTO "ePrivateNodes"(appname, packageName, data) VALUES($1, $2, $3) RETURNING *'
+      'INSERT INTO "ePrivateNodes"(appname, "packageName", data) VALUES($1, $2, $3) RETURNING *'
     values = columns
       .slice(0, 3)
       .map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   }
+  console.log('****************** data', data.data)
   console.log('****************** query', query)
   console.log('****************** values', JSON.stringify(values))
   await doSQL(query, values)
