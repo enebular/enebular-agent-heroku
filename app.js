@@ -45,16 +45,20 @@ app.get('/', function (req, res) {
   res.redirect('/red')
 })
 
-console.time('nodes install')
-installNodes()
-  .then(() => {
-    console.timeEnd('nodes install')
-    RED.start()
-    var port = process.env.PORT || 1880
-    server.listen(port)
-  })
-  .catch((err) => {
-    console.timeEnd('nodes install')
-    //TODO: エラーの場合はDynoの再起動を促すように例外をスローすべきか検討必要
-    console.error('privatenode install error', err)
-  })
+if (process.env.SECURE_LINK) {
+  console.time('nodes install')
+  installNodes()
+    .then(() => {
+      console.timeEnd('nodes install')
+      RED.start()
+      var port = process.env.PORT || 1880
+      server.listen(port)
+    })
+    .catch((err) => {
+      console.timeEnd('nodes install')
+      //TODO: エラーの場合はDynoの再起動を促すように例外をスローすべきか検討必要
+      console.error('privatenode install error', err)
+    })
+} else {
+  console.log('secure link not found')
+}
