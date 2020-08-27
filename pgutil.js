@@ -96,6 +96,8 @@ const saveConfig = async (appname, params) => {
       .slice(0, 5)
       .map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   }
+  console.log('****************** query', query)
+  console.log('****************** values', JSON.stringify(values))
   await doSQL(query, values)
 }
 
@@ -127,6 +129,8 @@ const saveLib = async (appname, params) => {
       .slice(0, 4)
       .map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   }
+  console.log('****************** query', query)
+  console.log('****************** values', JSON.stringify(values))
   await doSQL(query, values)
 }
 
@@ -158,6 +162,8 @@ const savePrivateNodes = async (appname, params) => {
       .slice(0, 2)
       .map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   }
+  console.log('****************** query', query)
+  console.log('****************** values', JSON.stringify(values))
   await doSQL(query, values)
 }
 
