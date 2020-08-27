@@ -78,15 +78,15 @@ const installNPMModule = async (packages) => {
 
 const getPrivateNodePackageStringForInstall = async (packageName) => {
   console.log('installPrivateNodePackage:' + packageName)
-  const data = await pgutil.getPrivateNodes(appname, { appname, packageName })
+  const data = await pgutil.loadPrivateNodes(appname, { appname, packageName })
   if (!data || !data.data) {
     throw new Error(`Failed to find private node packages: ${packageName}`)
   }
-  // Save data to /tmp
-  let data = Buffer.from(doc.data, 'base64')
+  // Save decoded data to /tmp
+  let decoded = Buffer.from(doc.data, 'base64')
   let packageString = await new Promise((resolve, reject) => {
     console.log(`save /tmp/${packageName}.tgz`)
-    fs.writeFile(`/tmp/${packageName}.tgz`, data, (err) => {
+    fs.writeFile(`/tmp/${packageName}.tgz`, decoded, (err) => {
       if (err) {
         console.error('Failed to save privatenode file: ' + packageName)
         return reject(err)
