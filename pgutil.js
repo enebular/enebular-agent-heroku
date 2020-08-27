@@ -89,7 +89,7 @@ const saveConfig = async (appname, params) => {
   if (data) {
     data = Object.assign(data, params)
     query =
-      'UPDATE eConfig SET appname = $1, flows = $2, credentials = $3, packages = $4, settings = $5, secureLink = $6 WHERE id = $7 RETURNING *'
+      'UPDATE eConfigs SET appname = $1, flows = $2, credentials = $3, packages = $4, settings = $5, secureLink = $6 WHERE id = $7 RETURNING *'
     values = columns.map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   } else {
     data = params
