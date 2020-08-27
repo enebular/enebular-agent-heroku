@@ -57,6 +57,8 @@ const doSQL = async (query, values) => {
 
 const loadConfig = async (appname) => {
   const query = 'SELECT * FROM eConfigs WHERE appname = $1'
+  console.log('*************** loadConfig query', query)
+  console.log('*************** loadConfig appname', appname)
   const data = await doSQL(query, [appname])
   if (data && data.rowCount > 0) {
     let retData = data.rows[0]
