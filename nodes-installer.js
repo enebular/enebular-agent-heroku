@@ -83,7 +83,7 @@ const getPrivateNodePackageStringForInstall = async (packageName) => {
     throw new Error(`Failed to find private node packages: ${packageName}`)
   }
   // Save decoded data to /tmp
-  let decoded = Buffer.from(doc.data, 'base64')
+  let decoded = Buffer.from(data.data, 'base64')
   let packageString = await new Promise((resolve, reject) => {
     console.log(`save /tmp/${packageName}.tgz`)
     fs.writeFile(`/tmp/${packageName}.tgz`, decoded, (err) => {
