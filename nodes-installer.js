@@ -78,7 +78,7 @@ const installNPMModule = async (packages) => {
 
 const getPrivateNodePackageStringForInstall = async (packageName) => {
   console.log('installPrivateNodePackage:' + packageName)
-  const data = await pgutil.loadPrivateNodes(appname, { appname, packageName })
+  const data = await pgutil.loadPrivateNodes(appname, packageName)
   if (!data || !data.data) {
     throw new Error(`Failed to find private node packages: ${packageName}`)
   }
