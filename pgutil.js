@@ -45,7 +45,7 @@ const doSQL = async (query, values) => {
   let client
   try {
     if (!pool) throw new Error('No PG instance')
-    const client = await pool.connect()
+    client = await pool.connect()
     return await client.query(query, values)
   } finally {
     if (client) {
