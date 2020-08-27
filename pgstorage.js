@@ -22,12 +22,13 @@ var appname
 
 function timeoutWrap(func) {
   return when.promise(function (resolve, reject, notify) {
-    var promise = func().timeout(5000, 'timeout')
+    var promise = func().timeout(10000, 'timeout')
     promise.then(function (a, b, c, d) {
       //heartBeatLastSent = (new Date()).getTime();
       resolve(a, b, c, d)
     })
     promise.otherwise(function (err) {
+      console.log('func', func)
       console.log('TIMEOUT: ', func.name)
       if (err == 'timeout') {
         reject(err)
@@ -76,7 +77,7 @@ function getCredentials() {
         resolve(data.credentials)
       } else {
         console.log('********* getCredentials reject {}')
-        reject({})
+        resolve({})
       }
     } catch (err) {
       console.log('********* getCredentials reject', err)
@@ -225,9 +226,7 @@ var pgstorage = {
   },
 
   getSettings: function () {
-    return timeoutWrap(function () {
-      return getSettings()
-    })
+    return timeoutWrap(getSettings)
   },
 
   saveSettings: function (data) {
