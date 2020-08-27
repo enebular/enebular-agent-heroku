@@ -70,12 +70,16 @@ function getCredentials() {
   return when.promise(async (resolve, reject, notify) => {
     try {
       const data = await pgutil.loadConfig(appname)
+      console.log('********* getCredentials data', data)
       if (data && data.credentials) {
+        console.log('********* getCredentials resolve')
         resolve(data.credentials)
       } else {
+        console.log('********* getCredentials reject {}')
         reject({})
       }
     } catch (err) {
+      console.log('********* getCredentials reject', err)
       reject(err)
     }
   })

@@ -81,9 +81,10 @@ const saveConfig = async (appname, params) => {
     'id',
   ]
   let data = await loadConfig(appname)
+  console.log('*************** loaded eConfig', JSON.stringify(data))
   let query
   let values
-  if (data !== null) {
+  if (data) {
     data = Object.assign(data, params)
     query =
       'UPDATE eConfig SET appname = $1, flows = $2, credentials = $3, packages = $4, settings = $5, secureLink = $6 WHERE id = $7 RETURNING *'
@@ -117,7 +118,7 @@ const saveLib = async (appname, params) => {
   let data = await loadLib(appname, params.type, params.path)
   let query
   let values
-  if (data !== null) {
+  if (data) {
     data = Object.assign(data, params)
     query =
       'UPDATE eLibs SET appname = $1, type = $2, path = $3, meta = $4, body = $5 WHERE id = $6 RETURNING *'
@@ -150,7 +151,7 @@ const savePrivateNodes = async (appname, params) => {
   let data = await loadPrivateNodes(appname, params.packageName)
   let query
   let values
-  if (data !== null) {
+  if (data) {
     data = Object.assign(data, params)
     query =
       'UPDATE ePrivateNodes SET appname = $1, packageName = $2, data = $3 WHERE id = $4 RETURNING *'
