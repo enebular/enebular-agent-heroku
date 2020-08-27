@@ -193,7 +193,7 @@ var pgstorage = {
     appname = settings.pgAppname || require('os').hostname()
     return when.promise(async (resolve, reject, notify) => {
       try {
-        const _pool = initPG()
+        const _pool = pgutil.initPG()
         // _poolを返却することで正しい？
         resolve(_pool)
       } catch (err) {
