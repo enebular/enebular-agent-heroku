@@ -165,7 +165,7 @@ const prepareEnebularFlow = async () => {
   let packages = {}
   if (data && data.packages) {
     packages = data.packages
-    savePrivateNodeFilesToPG(packages)
+    await savePrivateNodeFilesToPG(packages)
   }
   await pgutil.saveConfig(appname, {
     appname,
