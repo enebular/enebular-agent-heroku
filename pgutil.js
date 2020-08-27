@@ -42,13 +42,13 @@ const createTable = async () => {
 }
 
 const doSQL = async (query, values) => {
-  const client
+  let client
   try {
     if (!pool) throw new Error('No PG instance')
     const client = await pool.connect()
     return await client.query(query, values)
   } finally {
-    if(client) {
+    if (client) {
       client.release()
     }
   }
