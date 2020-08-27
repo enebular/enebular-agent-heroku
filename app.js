@@ -11,6 +11,8 @@ var installNodes = require('./nodes-installer')
 const pgutil = require('./pgutil')
 
 pgutil.initPG()
+// Postgresにテーブルを作成する。フローがデプロイされる前に実施する(2回目以降はSQLにIF NOT EXITSを付けているため実施されない)。
+pgutil.createTable()
 
 var server = http.createServer(app)
 
@@ -61,4 +63,6 @@ if (process.env.SECURE_LINK) {
     })
 } else {
   console.log('secure link not found')
+  var port = process.env.PORT || 1880
+  server.listen(port)
 }

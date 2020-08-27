@@ -13,6 +13,7 @@ const initPG = () => {
 
 const createTable = async () => {
   if (!pool) throw new Error('No PG instance')
+  console.log('create pg tables')
   const query = `
     CREATE TABLE IF NOT EXISTS eConfigs (
       id SERIAL PRIMARY KEY,

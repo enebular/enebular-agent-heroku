@@ -183,8 +183,6 @@ const installNodes = async () => {
     console.log('Presigned URLからFlowの取得が必要か判定')
     const need = await needDownloadFlow()
     if (need) {
-      console.log('create pg tables')
-      await pgutil.createTable()
       console.log('Download flow pack from S3')
       await prepareEnebularFlow()
     }
