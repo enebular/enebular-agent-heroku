@@ -15,16 +15,16 @@ const createTable = async () => {
   if (!pool) throw new Error('No PG instance')
   console.log('create pg tables')
   const query = `
-    CREATE TABLE IF NOT EXISTS eConfigs (
+    CREATE TABLE IF NOT EXISTS "eConfigs" (
       id SERIAL PRIMARY KEY,
       appname character varying(255) NOT NULL,
       flows text,
       credentials text,
       packages text,
       settings text,
-      secureLink text
+      "secureLink" text
     );
-    CREATE TABLE IF NOT EXISTS eLibs (
+    CREATE TABLE IF NOT EXISTS "eLibs" (
       id SERIAL PRIMARY KEY,
       appname character varying(255) NOT NULL,
       type text,
@@ -32,7 +32,7 @@ const createTable = async () => {
       meta text,
       body text
     );
-    CREATE TABLE IF NOT EXISTS ePrivateNodes (
+    CREATE TABLE IF NOT EXISTS "ePrivateNodes" (
       id SERIAL PRIMARY KEY,
       appname character varying(255) NOT NULL,
       packageName text,
@@ -56,7 +56,7 @@ const doSQL = async (query, values) => {
 }
 
 const loadConfig = async (appname) => {
-  const query = 'SELECT * FROM eConfigs WHERE appname = $1'
+  const query = 'SELECT * FROM "eConfigs" WHERE appname = $1'
   console.log('*************** loadConfig query', query)
   console.log('*************** loadConfig appname', appname)
   const data = await doSQL(query, [JSON.stringify(appname)])
@@ -89,12 +89,12 @@ const saveConfig = async (appname, params) => {
   if (data) {
     data = Object.assign(data, params)
     query =
-      'UPDATE eConfigs SET appname = $1, flows = $2, credentials = $3, packages = $4, settings = $5, secureLink = $6 WHERE id = $7 RETURNING *'
+      'UPDATE "eConfigs" SET appname = $1, flows = $2, credentials = $3, packages = $4, settings = $5, "secureLink" = $6 WHERE id = $7 RETURNING *'
     values = columns.map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   } else {
     data = params
     query =
-      'INSERT INTO eConfigs(appname, flows, credentials, packages, settings, secureLink) VALUES($1, $2, $3, $4, $5, $6) RETURNING *'
+      'INSERT INTO "eConfigs"(appname, flows, credentials, packages, settings, "secureLink") VALUES($1, $2, $3, $4, $5, $6) RETURNING *'
     values = columns
       .slice(0, 6)
       .map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
@@ -107,7 +107,7 @@ const saveConfig = async (appname, params) => {
 
 const loadLib = async (appname, type, path) => {
   const query =
-    'SELECT * FROM eLibs WHERE appname = $1 and type = $2 and path = $3'
+    'SELECT * FROM "eLibs" WHERE appname = $1 and type = $2 and path = $3'
   const data = await doSQL(query, [
     JSON.stringify(appname),
     JSON.stringify(type),
@@ -127,12 +127,12 @@ const saveLib = async (appname, params) => {
   if (data) {
     data = Object.assign(data, params)
     query =
-      'UPDATE eLibs SET appname = $1, type = $2, path = $3, meta = $4, body = $5 WHERE id = $6 RETURNING *'
+      'UPDATE "eLibs" SET appname = $1, type = $2, path = $3, meta = $4, body = $5 WHERE id = $6 RETURNING *'
     values = columns.map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   } else {
     data = params
     query =
-      'INSERT INTO eLibs(appname, type, path, meta, body) VALUES($1, $2, $3, $4, $5) RETURNING *'
+      'INSERT INTO "eLibs"(appname, type, path, meta, body) VALUES($1, $2, $3, $4, $5) RETURNING *'
     values = columns
       .slice(0, 5)
       .map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
@@ -144,7 +144,7 @@ const saveLib = async (appname, params) => {
 
 const loadPrivateNodes = async (appname, packageName) => {
   const query =
-    'SELECT * FROM ePrivateNodes WHERE appname = $1 and packageName = $2'
+    'SELECT * FROM "ePrivateNodes" WHERE appname = $1 and packageName = $2'
   const data = await doSQL(query, [
     JSON.stringify(appname),
     JSON.stringify(packageName),
@@ -163,12 +163,12 @@ const savePrivateNodes = async (appname, params) => {
   if (data) {
     data = Object.assign(data, params)
     query =
-      'UPDATE ePrivateNodes SET appname = $1, packageName = $2, data = $3 WHERE id = $4 RETURNING *'
+      'UPDATE "ePrivateNodes" SET appname = $1, packageName = $2, data = $3 WHERE id = $4 RETURNING *'
     values = columns.map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   } else {
     data = params
     query =
-      'INSERT INTO ePrivateNodes(appname, packageName, data) VALUES($1, $2, $3) RETURNING *'
+      'INSERT INTO "ePrivateNodes"(appname, packageName, data) VALUES($1, $2, $3) RETURNING *'
     values = columns
       .slice(0, 3)
       .map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
@@ -179,7 +179,7 @@ const savePrivateNodes = async (appname, params) => {
 }
 
 const removePrivateNodes = async (appname) => {
-  const query = 'DELETE FROM ePrivateNodes WHERE appname = $1'
+  const query = 'DELETE FROM "ePrivateNodes" WHERE appname = $1'
   await doSQL(query, [JSON.stringify(appname)])
 }
 
