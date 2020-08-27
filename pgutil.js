@@ -59,7 +59,7 @@ const loadConfig = async (appname) => {
   const query = 'SELECT * FROM eConfigs WHERE appname = $1'
   console.log('*************** loadConfig query', query)
   console.log('*************** loadConfig appname', appname)
-  const data = await doSQL(query, [appname])
+  const data = await doSQL(query, [JSON.stringify(appname)])
   if (data && data.rowCount > 0) {
     let retData = data.rows[0]
     for (let key in retData) {
@@ -108,7 +108,11 @@ const saveConfig = async (appname, params) => {
 const loadLib = async (appname, type, path) => {
   const query =
     'SELECT * FROM eLibs WHERE appname = $1 and type = $2 and path = $3'
-  const data = await doSQL(query, [appname, type, path])
+  const data = await doSQL(query, [
+    JSON.stringify(appname),
+    JSON.stringify(type),
+    JSON.stringify(path),
+  ])
   if (data && data.rowCount > 0) {
     return data.rows[0]
   }
@@ -141,7 +145,10 @@ const saveLib = async (appname, params) => {
 const loadPrivateNodes = async (appname, packageName) => {
   const query =
     'SELECT * FROM ePrivateNodes WHERE appname = $1 and packageName = $2'
-  const data = await doSQL(query, [appname, packageName])
+  const data = await doSQL(query, [
+    JSON.stringify(appname),
+    JSON.stringify(packageName),
+  ])
   if (data && data.rowCount > 0) {
     return data.rows[0]
   }
@@ -173,7 +180,7 @@ const savePrivateNodes = async (appname, params) => {
 
 const removePrivateNodes = async (appname) => {
   const query = 'DELETE FROM ePrivateNodes WHERE appname = $1'
-  await doSQL(query, [appname])
+  await doSQL(query, [JSON.stringify(appname)])
 }
 
 exports.initPG = initPG
