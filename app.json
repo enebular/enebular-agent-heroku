@@ -25,7 +25,6 @@
       "options": {
         "version": "12"
       }
-    },
-    "mongolab"
+    }
   ]
 }
