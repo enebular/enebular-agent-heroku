@@ -177,7 +177,7 @@ const loadPrivateNodes = async (appname, packageName) => {
   ])
   if (data && data.rowCount > 0) {
     let retData = data.rows[0]
-    for (let key in d) {
+    for (let key in retData) {
       if (retData[key]) {
         retData[key] = JSON.parse(retData[key])
       }
