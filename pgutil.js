@@ -131,7 +131,7 @@ const loadLibList = async (appname, type, dir) => {
   const data = await doSQL(query, [
     JSON.stringify(appname),
     JSON.stringify(type),
-    `"${path}%`,
+    `"${dir}%`,
   ])
   let retDataList = data.rows.map((d) => {
     let retData = {}
