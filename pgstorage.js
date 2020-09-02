@@ -73,16 +73,12 @@ function getCredentials() {
   return when.promise(async (resolve, reject, notify) => {
     try {
       const data = await pgutil.loadConfig(appname)
-      console.log('********* getCredentials data', data)
       if (data && data.credentials) {
-        console.log('********* getCredentials resolve')
         resolve(data.credentials)
       } else {
-        console.log('********* getCredentials reject {}')
         resolve({})
       }
     } catch (err) {
-      console.log('********* getCredentials reject', err)
       reject(err)
     }
   })
@@ -129,7 +125,7 @@ function saveSettings(settings) {
 }
 
 function getLibraryEntry(type, path) {
-  console.log('getLibraryEntry', type, path)
+  console.log('getLibraryEntry')
   return when.promise(async (resolve, reject, notify) => {
     try {
       const data = await pgutil.loadLib(appname, type, path)
@@ -157,34 +153,6 @@ function getLibraryEntry(type, path) {
           }
         }
         resolve(dirs.concat(files))
-        /*        libCollection
-          .find(
-            { appname: appname, type: type, path: { $regex: path + '.*' } },
-            { sort: 'path' }
-          )
-          .toArray(function (err, docs) {
-            if (err) {
-              defer.reject(err)
-            } else if (!docs) {
-              defer.reject('not found')
-            } else {
-              var dirs = []
-              var files = []
-              for (var i = 0; i < docs.length; i++) {
-                var doc = docs[i]
-                var subpath = doc.path.substr(path.length)
-                var parts = subpath.split('/')
-                if (parts.length == 1) {
-                  var meta = doc.meta
-                  meta.fn = parts[0]
-                  files.push(meta)
-                } else if (dirs.indexOf(parts[0]) == -1) {
-                  dirs.push(parts[0])
-                }
-              }
-              defer.resolve(dirs.concat(files))
-            }
-          })*/
       }
     } catch (err) {
       reject(err)
@@ -193,7 +161,7 @@ function getLibraryEntry(type, path) {
 }
 
 function saveLibraryEntry(type, path, meta, body) {
-  console.log('saveLibraryEntry', type, path, meta, body)
+  console.log('saveLibraryEntry')
   return when.promise(async (resolve, reject, notify) => {
     try {
       await pgutil.saveLib(appname, {

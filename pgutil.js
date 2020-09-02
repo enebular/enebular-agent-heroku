@@ -57,8 +57,6 @@ const doSQL = async (query, values) => {
 
 const loadConfig = async (appname) => {
   const query = 'SELECT * FROM "eConfigs" WHERE appname = $1'
-  console.log('*************** loadConfig query', query)
-  console.log('*************** loadConfig appname', appname)
   const data = await doSQL(query, [JSON.stringify(appname)])
   if (data && data.rowCount > 0) {
     let retData = data.rows[0]
@@ -83,7 +81,6 @@ const saveConfig = async (appname, params) => {
     'id',
   ]
   let data = await loadConfig(appname)
-  console.log('*************** loaded eConfig', JSON.stringify(data))
   let query
   let values
   if (data) {
@@ -99,9 +96,6 @@ const saveConfig = async (appname, params) => {
       .slice(0, 6)
       .map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   }
-  console.log('****************** data', JSON.stringify(data))
-  console.log('****************** query', query)
-  console.log('****************** values', JSON.stringify(values))
   await doSQL(query, values)
 }
 
@@ -163,8 +157,6 @@ const saveLib = async (appname, params) => {
       .slice(0, 5)
       .map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   }
-  console.log('****************** query', query)
-  console.log('****************** values', JSON.stringify(values))
   await doSQL(query, values)
 }
 
@@ -205,9 +197,6 @@ const savePrivateNodes = async (appname, params) => {
       .slice(0, 3)
       .map((c) => (data[c] ? JSON.stringify(data[c]) : ''))
   }
-  console.log('****************** data', data.data)
-  console.log('****************** query', query)
-  console.log('****************** values', JSON.stringify(values))
   await doSQL(query, values)
 }
 
