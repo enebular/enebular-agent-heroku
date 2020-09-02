@@ -34,7 +34,7 @@ var settings = {
     },
     menu: {
       'menu-item-import-library': true,
-      'menu-item-export-library': false,
+      'menu-item-export-library': true,
     },
   },
   adminAuth: {

@@ -114,9 +114,35 @@ const loadLib = async (appname, type, path) => {
     JSON.stringify(path),
   ])
   if (data && data.rowCount > 0) {
-    return data.rows[0]
+    let retData = data.rows[0]
+    for (let key in retData) {
+      if (retData[key]) {
+        retData[key] = JSON.parse(retData[key])
+      }
+    }
+    return retData
   }
   return null
+}
+
+const loadLibList = async (appname, type, dir) => {
+  const query =
+    'SELECT * FROM "eLibs" WHERE appname = $1 and type = $2 and path LIKE $3 ORDER BY path'
+  const data = await doSQL(query, [
+    JSON.stringify(appname),
+    JSON.stringify(type),
+    `"${path}%`,
+  ])
+  let retDataList = data.rows.map((d) => {
+    let retData = {}
+    for (let key in d) {
+      if (d[key]) {
+        retData[key] = JSON.parse(d[key])
+      }
+    }
+    return retData
+  })
+  return retDataList
 }
 
 const saveLib = async (appname, params) => {
@@ -150,7 +176,13 @@ const loadPrivateNodes = async (appname, packageName) => {
     JSON.stringify(packageName),
   ])
   if (data && data.rowCount > 0) {
-    return data.rows[0]
+    let retData = data.rows[0]
+    for (let key in d) {
+      if (retData[key]) {
+        retData[key] = JSON.parse(retData[key])
+      }
+    }
+    return retData
   }
   return null
 }
@@ -189,6 +221,7 @@ exports.createTable = createTable
 exports.loadConfig = loadConfig
 exports.saveConfig = saveConfig
 exports.loadLib = loadLib
+exports.loadLibList = loadLibList
 exports.saveLib = saveLib
 exports.loadPrivateNodes = loadPrivateNodes
 exports.savePrivateNodes = savePrivateNodes

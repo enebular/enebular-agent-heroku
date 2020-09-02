@@ -16,6 +16,7 @@
 
 var when = require('when')
 var pgutil = require('./pgutil')
+const e = require('express')
 
 var settings
 var appname
@@ -133,15 +134,30 @@ function getLibraryEntry(type, path) {
     try {
       const data = await pgutil.loadLib(appname, type, path)
       if (data && data.body) {
+        // データを要求された場合は見つかったデータを返す
         resolve(data.body)
       } else {
-        resolve([])
-        //        reject(new Error('Not found'))
-        //　以下の処理は必要か？
-        /*if (path != '' && path.substr(-1) != '/') {
+        // ディレクトリを指定された場合はそのパスに存在するデータの一覧を返す
+        if (path != '' && path.substr(-1) != '/') {
           path = path + '/'
         }
-        libCollection
+        let list = await pgutil.loadLibList(appname, type, path)
+        let dirs = []
+        let files = []
+        for (var i = 0; i < list.length; i++) {
+          let d = list[i]
+          let subpath = d.path.substr(path.length)
+          let parts = subpath.split('/')
+          if (parts.length == 1) {
+            let meta = d.meta
+            meta.fn = parts[0]
+            files.push(meta)
+          } else if (dirs.indexOf(parts[0]) == -1) {
+            dirs.push(parts[0])
+          }
+        }
+        resolve(dirs.concat(files))
+        /*        libCollection
           .find(
             { appname: appname, type: type, path: { $regex: path + '.*' } },
             { sort: 'path' }
@@ -177,7 +193,7 @@ function getLibraryEntry(type, path) {
 }
 
 function saveLibraryEntry(type, path, meta, body) {
-  console.log('saveLibraryEntry')
+  console.log('saveLibraryEntry', type, path, meta, body)
   return when.promise(async (resolve, reject, notify) => {
     try {
       await pgutil.saveLib(appname, {
