@@ -128,14 +128,15 @@ function saveSettings(settings) {
 }
 
 function getLibraryEntry(type, path) {
-  console.log('getLibraryEntry')
+  console.log('getLibraryEntry', type, path)
   return when.promise(async (resolve, reject, notify) => {
     try {
       const data = await pgutil.loadLib(appname, type, path)
       if (data && data.body) {
         resolve(data.body)
       } else {
-        reject(new Error('Not found'))
+        resolve([])
+        //        reject(new Error('Not found'))
         //　以下の処理は必要か？
         /*if (path != '' && path.substr(-1) != '/') {
           path = path + '/'
