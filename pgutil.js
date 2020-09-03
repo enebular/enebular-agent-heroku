@@ -99,6 +99,11 @@ const saveConfig = async (appname, params) => {
   await doSQL(query, values)
 }
 
+const removeConfig = async (appname) => {
+  const query = 'DELETE FROM "eConfigs" WHERE appname = $1'
+  await doSQL(query, [JSON.stringify(appname)])
+}
+
 const loadLib = async (appname, type, path) => {
   const query =
     'SELECT * FROM "eLibs" WHERE appname = $1 and type = $2 and path = $3'
@@ -209,6 +214,7 @@ exports.initPG = initPG
 exports.createTable = createTable
 exports.loadConfig = loadConfig
 exports.saveConfig = saveConfig
+exports.removeConfig = removeConfig
 exports.loadLib = loadLib
 exports.loadLibList = loadLibList
 exports.saveLib = saveLib
