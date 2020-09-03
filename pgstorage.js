@@ -15,7 +15,8 @@
  **/
 
 var when = require('when')
-var mutil = require('./mongodbutil')
+var pgutil = require('./pgutil')
+const e = require('express')
 
 var settings
 var appname
@@ -28,17 +29,10 @@ function timeoutWrap(func) {
       resolve(a, b, c, d)
     })
     promise.otherwise(function (err) {
+      console.log('func', func)
+      console.log('timeout err', err)
       console.log('TIMEOUT: ', func.name)
       if (err == 'timeout') {
-        mutil
-          .close()
-          .then(function () {
-            resolve(func())
-          })
-          .otherwise(function (err) {
-            reject(err)
-          })
-      } else {
         reject(err)
       }
     })
@@ -49,9 +43,9 @@ function getFlows() {
   console.log('getFlows')
   return when.promise(async (resolve, reject, notify) => {
     try {
-      const data = await mutil.getCollectionData(appname)
-      if (data && data.flow) {
-        resolve(data.flow)
+      const data = await pgutil.loadConfig(appname)
+      if (data && data.flows) {
+        resolve(data.flows)
       } else {
         resolve([])
       }
@@ -65,9 +59,8 @@ function saveFlows(flows) {
   console.log('saveFlows')
   return when.promise(async (resolve, reject, notify) => {
     try {
-      await mutil.saveDataToMongoDBCollection({ flow: flows }, appname)
       let secureLink = process.env.SECURE_LINK
-      await mutil.saveDataToMongoDBCollection({ secureLink }, appname)
+      await pgutil.saveConfig(appname, { appname, flows, secureLink })
       resolve()
     } catch (err) {
       reject(err)
@@ -79,11 +72,11 @@ function getCredentials() {
   console.log('getCredentials')
   return when.promise(async (resolve, reject, notify) => {
     try {
-      const data = await mutil.getCollectionData(appname)
+      const data = await pgutil.loadConfig(appname)
       if (data && data.credentials) {
-        resolve(mutil.jconv(data.credentials))
+        resolve(data.credentials)
       } else {
-        reject({})
+        resolve({})
       }
     } catch (err) {
       reject(err)
@@ -95,12 +88,7 @@ function saveCredentials(credentials) {
   console.log('saveCredentials')
   return when.promise(async (resolve, reject, notify) => {
     try {
-      await mutil.saveDataToMongoDBCollection(
-        {
-          credentials: mutil.bconv(credentials)
-        },
-        appname
-      )
+      await pgutil.saveConfig(appname, { appname, credentials })
       resolve()
     } catch (err) {
       reject(err)
@@ -112,9 +100,8 @@ function getSettings() {
   console.log('getSettings')
   return when.promise(async (resolve, reject, notify) => {
     try {
-      const data = await mutil.getCollectionData(appname)
+      const data = await pgutil.loadConfig(appname)
       if (data && data.settings) {
-        //        resolve(mutil.jconv(data.settings))
         resolve(data.settings)
       } else {
         resolve({})
@@ -129,13 +116,7 @@ function saveSettings(settings) {
   console.log('saveSettings')
   return when.promise(async (resolve, reject, notify) => {
     try {
-      await mutil.saveDataToMongoDBCollection(
-        {
-          //          settings: mutil.bconv(settings)
-          settings: settings
-        },
-        appname
-      )
+      await pgutil.saveConfig(appname, { appname, settings })
       resolve()
     } catch (err) {
       reject(err)
@@ -144,91 +125,68 @@ function saveSettings(settings) {
 }
 
 function getLibraryEntry(type, path) {
-  var defer = when.defer()
-  mutil
-    .libCollection()
-    .then(function (libCollection) {
-      libCollection.findOne(
-        { appname: appname, type: type, path: path },
-        function (err, doc) {
-          if (err) {
-            defer.reject(err)
-          } else if (doc) {
-            defer.resolve(doc.data)
-          } else {
-            if (path != '' && path.substr(-1) != '/') {
-              path = path + '/'
-            }
-            libCollection
-              .find(
-                { appname: appname, type: type, path: { $regex: path + '.*' } },
-                { sort: 'path' }
-              )
-              .toArray(function (err, docs) {
-                if (err) {
-                  defer.reject(err)
-                } else if (!docs) {
-                  defer.reject('not found')
-                } else {
-                  var dirs = []
-                  var files = []
-                  for (var i = 0; i < docs.length; i++) {
-                    var doc = docs[i]
-                    var subpath = doc.path.substr(path.length)
-                    var parts = subpath.split('/')
-                    if (parts.length == 1) {
-                      var meta = doc.meta
-                      meta.fn = parts[0]
-                      files.push(meta)
-                    } else if (dirs.indexOf(parts[0]) == -1) {
-                      dirs.push(parts[0])
-                    }
-                  }
-                  defer.resolve(dirs.concat(files))
-                }
-              })
+  console.log('getLibraryEntry')
+  return when.promise(async (resolve, reject, notify) => {
+    try {
+      const data = await pgutil.loadLib(appname, type, path)
+      if (data && data.body) {
+        // データを要求された場合は見つかったデータを返す
+        resolve(data.body)
+      } else {
+        // ディレクトリを指定された場合はそのパスに存在するデータの一覧を返す
+        if (path != '' && path.substr(-1) != '/') {
+          path = path + '/'
+        }
+        let list = await pgutil.loadLibList(appname, type, path)
+        let dirs = []
+        let files = []
+        for (var i = 0; i < list.length; i++) {
+          let d = list[i]
+          let subpath = d.path.substr(path.length)
+          let parts = subpath.split('/')
+          if (parts.length == 1) {
+            let meta = d.meta
+            meta.fn = parts[0]
+            files.push(meta)
+          } else if (dirs.indexOf(parts[0]) == -1) {
+            dirs.push(parts[0])
           }
         }
-      )
-    })
-    .catch(function (err) {
-      defer.reject(err)
-    })
-  return defer.promise
+        resolve(dirs.concat(files))
+      }
+    } catch (err) {
+      reject(err)
+    }
+  })
 }
 
 function saveLibraryEntry(type, path, meta, body) {
-  var defer = when.defer()
-  mutil
-    .libCollection()
-    .then(function (libCollection) {
-      libCollection.update(
-        { appname: appname, type: type, path: path },
-        { appname: appname, type: type, path: path, meta: meta, data: body },
-        { upsert: true },
-        function (err) {
-          if (err) {
-            defer.reject(err)
-          } else {
-            defer.resolve()
-          }
-        }
-      )
-    })
-    .catch(function (err) {
-      defer.reject(err)
-    })
-  return defer.promise
+  console.log('saveLibraryEntry')
+  return when.promise(async (resolve, reject, notify) => {
+    try {
+      await pgutil.saveLib(appname, {
+        appname,
+        type,
+        path,
+        meta,
+        body
+      })
+      resolve()
+    } catch (err) {
+      reject(err)
+    }
+  })
 }
 
-var mongostorage = {
+var pgstorage = {
   init: function (_settings) {
     settings = _settings
-    appname = settings.mongoAppname || require('os').hostname()
+    appname = settings.pgAppname || require('os').hostname()
     return when.promise(async (resolve, reject, notify) => {
       try {
-        const _db = await mutil.db()
-        resolve(_db)
+        const _pool = pgutil.initPG()
+        // _poolを返却することで正しい？
+        resolve(_pool)
       } catch (err) {
         reject(err)
       }
@@ -254,9 +212,7 @@ var mongostorage = {
   },
 
   getSettings: function () {
-    return timeoutWrap(function () {
-      return getSettings()
-    })
+    return timeoutWrap(getSettings)
   },
 
   saveSettings: function (data) {
@@ -290,4 +246,4 @@ var mongostorage = {
   }
 }
 
-module.exports = mongostorage
+module.exports = pgstorage
