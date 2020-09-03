@@ -78,7 +78,7 @@ const saveConfig = async (appname, params) => {
     'packages',
     'settings',
     'secureLink',
-    'id',
+    'id'
   ]
   let data = await loadConfig(appname)
   let query
@@ -105,7 +105,7 @@ const loadLib = async (appname, type, path) => {
   const data = await doSQL(query, [
     JSON.stringify(appname),
     JSON.stringify(type),
-    JSON.stringify(path),
+    JSON.stringify(path)
   ])
   if (data && data.rowCount > 0) {
     let retData = data.rows[0]
@@ -125,7 +125,7 @@ const loadLibList = async (appname, type, dir) => {
   const data = await doSQL(query, [
     JSON.stringify(appname),
     JSON.stringify(type),
-    `"${dir}%`,
+    `"${dir}%`
   ])
   let retDataList = data.rows.map((d) => {
     let retData = {}
@@ -165,7 +165,7 @@ const loadPrivateNodes = async (appname, packageName) => {
     'SELECT * FROM "ePrivateNodes" WHERE appname = $1 and "packageName" = $2'
   const data = await doSQL(query, [
     JSON.stringify(appname),
-    JSON.stringify(packageName),
+    JSON.stringify(packageName)
   ])
   if (data && data.rowCount > 0) {
     let retData = data.rows[0]

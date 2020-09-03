@@ -19,7 +19,7 @@ var server = http.createServer(app)
 app.use(
   bodyParser.urlencoded({
     extended: true,
-    limit: '10mb',
+    limit: '10mb'
   })
 )
 

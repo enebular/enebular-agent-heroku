@@ -59,7 +59,7 @@ const downloadAndSavePrivateNode = async (packageName, url) => {
       await pgutil.savePrivateNodes(appname, {
         appname,
         packageName,
-        data: base64str,
+        data: base64str
       })
     }
   }
@@ -71,7 +71,7 @@ const downloadAndSavePrivateNode = async (packageName, url) => {
 // ・<File(tgz) path>
 const installNPMModule = async (packages) => {
   let result = await execFileAsync(npmCommand, ['install', ...packages], {
-    cwd: path.resolve(__dirname),
+    cwd: path.resolve(__dirname)
   })
   return result
 }
@@ -138,8 +138,8 @@ const installPackages = async (packages) => {
 }
 
 // enebular
-// Save flow/credentials/packages/secureLink information to MongoDB
-// Save PrivateNode to MongoDB if exists
+// Save flow/credentials/packages/secureLink information to PostgreSQL
+// Save PrivateNode to PostgreSQL if exists
 const prepareEnebularFlow = async () => {
   var url = process.env.SECURE_LINK
   if (!url) {
@@ -173,7 +173,7 @@ const prepareEnebularFlow = async () => {
     credentials,
     packages,
     settings: {},
-    secureLink: url,
+    secureLink: url
   })
 }
 

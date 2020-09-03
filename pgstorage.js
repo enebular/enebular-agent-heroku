@@ -169,7 +169,7 @@ function saveLibraryEntry(type, path, meta, body) {
         type,
         path,
         meta,
-        body,
+        body
       })
       resolve()
     } catch (err) {
@@ -243,7 +243,7 @@ var pgstorage = {
       }
     }
     return credentials
-  },
+  }
 }
 
 module.exports = pgstorage

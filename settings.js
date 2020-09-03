@@ -12,30 +12,30 @@ var settings = {
   functionGlobalContext: {}, // enables global context
   httpNodeCors: {
     origin: '*',
-    methods: 'GET,PUT,POST,DELETE',
+    methods: 'GET,PUT,POST,DELETE'
   },
   editorTheme: {
     userMenu: false,
     page: {
       title: '',
       favicon: path.join(userDir, 'node-red', 'img', 'favicon.ico'),
-      css: path.join(userDir, 'node-red', 'css', 'index.css'),
+      css: path.join(userDir, 'node-red', 'css', 'index.css')
     },
     header: {
       title: '',
-      image: path.join(userDir, 'node-red', 'img', 'enebular_logo.svg'),
+      image: path.join(userDir, 'node-red', 'img', 'enebular_logo.svg')
     },
     palette: {
-      editable: true,
+      editable: true
     },
     httpNodeCors: {
       origin: '*',
-      methods: 'GET,PUT,POST,DELETE',
+      methods: 'GET,PUT,POST,DELETE'
     },
     menu: {
       'menu-item-import-library': true,
-      'menu-item-export-library': true,
-    },
+      'menu-item-export-library': true
+    }
   },
   adminAuth: {
     type: 'credentials',
@@ -55,8 +55,8 @@ var settings = {
       } else {
         return when.resolve(null)
       }
-    },
-  },
+    }
+  }
 }
 
 if (process.env.ISSUER) {
@@ -65,11 +65,6 @@ if (process.env.ISSUER) {
   settings.enebularUrl = settings.enebularHost
   settings.secure_link = process.env.SECURE_LINK
   settings.flow_expired = Number(process.env.FLOW_EXPIRED)
-  settings.mongoUrl =
-    process.env.MONGODB_URI ||
-    process.env.MONGO_URI ||
-    process.env.MONGOLAB_URI ||
-    'mongodb://localhost:27017/enebular-heroku'
   settings.pgAppname = 'enebular'
 } else {
   settings.userDir = path.join(__dirname)
