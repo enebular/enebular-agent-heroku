@@ -145,7 +145,8 @@ const prepareEnebularFlow = async () => {
   if (!url) {
     throw new Error('SECURE_LINK not defined')
   }
-  await pgutil.removePrivateNodes()
+  await pgutil.removeConfig(appname)
+  await pgutil.removePrivateNodes(appname)
   const data = await new Promise((resolve, reject) => {
     request.get({ url: url, json: false }, (err, res, body) => {
       if (err) {
