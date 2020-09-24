@@ -7,15 +7,23 @@ var RED = require('@uhuru/enebular-node-red')
 var settings = require('./settings')
 var bodyParser = require('body-parser')
 var app = express()
+var installNodes = require('./nodes-installer')
+const pgutil = require('./pgutil')
+
+pgutil.initPG()
+// Postgresにテーブルを作成する。フローがデプロイされる前に実施する(2回目以降はSQLにIF NOT EXITSを付けているため実施されない)。
+pgutil.createTable()
 
 var server = http.createServer(app)
 
 app.use(
   bodyParser.urlencoded({
     extended: true,
-    limit: '10mb',
+    limit: '10mb'
   })
 )
+app.use(bodyParser.json({ extended: true, limit: '10mb' }))
+
 app.use(bodyParser.json({ extended: true, limit: '10mb' }))
 
 app.use(session({ secret: '4r13ysgyYD' }))
@@ -40,7 +48,22 @@ app.get('/', function (req, res) {
   res.redirect('/red')
 })
 
-var port = process.env.PORT || 1880
-server.listen(port)
-
-RED.start()
+if (process.env.SECURE_LINK) {
+  console.time('nodes install')
+  installNodes()
+    .then(() => {
+      console.timeEnd('nodes install')
+      RED.start()
+      var port = process.env.PORT || 1880
+      server.listen(port)
+    })
+    .catch((err) => {
+      console.timeEnd('nodes install')
+      //TODO: エラーの場合はDynoの再起動を促すように例外をスローすべきか検討必要
+      console.error('install error', err)
+    })
+} else {
+  console.log('secure link not found')
+  var port = process.env.PORT || 1880
+  server.listen(port)
+}
