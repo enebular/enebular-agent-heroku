@@ -20,7 +20,7 @@
     "express": "~4.x",
     "express-session": "^1.11.3",
     "jsonwebtoken": "^5.0.4",
-    "node-red-contrib-firebase-data": "0.0.10",
+    "node-red-contrib-firebase-data": "git+https://github.com/enebular/node-red-contrib-firebase-data.git",
     "node-red-contrib-pubnub": "^4.0.2",
     "pg": "^8.3.0",
     "request": "^2.65.0",
