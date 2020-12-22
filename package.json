@@ -1,6 +1,6 @@
 {
   "name": "enebular-agent-heroku",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": true,
   "description": "",
   "main": "app.js",
@@ -8,19 +8,19 @@
     "start": "node app"
   },
   "engines": {
-    "node": "12.18.1",
+    "node": "12.20.0",
     "npm": "6.14.5"
   },
   "files": [],
   "dependencies": {
-    "@uhuru/enebular-node-red": "1.0.5-alpha.12",
+    "@uhuru/enebular-node-red": "1.0.5-alpha.15",
     "bcryptjs": "~2.x",
     "body-parser": "^1.14.0",
     "ejs": "^2.3.4",
     "express": "~4.x",
     "express-session": "^1.11.3",
     "jsonwebtoken": "^5.0.4",
-    "node-red-contrib-firebase-data": "0.0.10",
+    "node-red-contrib-firebase-data": "0.0.11",
     "node-red-contrib-pubnub": "^4.0.2",
     "pg": "^8.3.0",
     "request": "^2.65.0",
