@@ -12,7 +12,7 @@
   },
   "files": [],
   "dependencies": {
-    "@uhuru/node-red": "^2.2.2-beta.23",
+    "@uhuru/node-red": "^2.2.2-beta.24",
     "bcryptjs": "~2.x",
     "body-parser": "^1.14.0",
     "ejs": "^2.3.4",
