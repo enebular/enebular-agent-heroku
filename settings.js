@@ -16,6 +16,7 @@ var settings = {
   },
   editorTheme: {
     userMenu: false,
+    tours: false,
     page: {
       title: '',
       favicon: path.join(userDir, 'node-red', 'img', 'favicon.ico'),
@@ -25,9 +26,6 @@ var settings = {
       title: '',
       image: path.join(userDir, 'node-red', 'img', 'enebular_logo.svg')
     },
-    palette: {
-      editable: true
-    },
     httpNodeCors: {
       origin: '*',
       methods: 'GET,PUT,POST,DELETE'
@@ -36,6 +34,9 @@ var settings = {
       'menu-item-import-library': true,
       'menu-item-export-library': true
     }
+  },
+  externalModules: {
+    autoInstall: true
   },
   adminAuth: {
     type: 'credentials',

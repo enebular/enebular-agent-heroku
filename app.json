@@ -16,14 +16,14 @@
     },
     "AGENT_HEROKU_VERSION": {
       "description": "versioin of enebular agent heroku (do not change)",
-      "value": "1.2.1"
+      "value": "1.3.0"
     }
   },
   "addons": [
     {
       "plan": "heroku-postgresql:hobby-dev",
       "options": {
-        "version": "12"
+        "version": "14"
       }
     }
   ]
