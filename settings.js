@@ -33,6 +33,9 @@ var settings = {
     menu: {
       'menu-item-import-library': true,
       'menu-item-export-library': true
+    },
+    codeEditor: {
+      lib: 'monaco'
     }
   },
   externalModules: {
