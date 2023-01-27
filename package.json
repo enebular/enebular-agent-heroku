@@ -15,7 +15,7 @@
     "@uhuru/node-red": "^2.2.2-n.2",
     "bcryptjs": "~2.x",
     "body-parser": "^1.14.0",
-    "ejs": "^2.3.4",
+    "ejs": "^3.1.7",
     "express": "~4.x",
     "express-session": "^1.11.3",
     "jsonwebtoken": "^5.0.4",
