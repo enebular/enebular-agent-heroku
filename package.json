@@ -18,7 +18,7 @@
     "ejs": "^2.3.4",
     "express": "~4.x",
     "express-session": "^1.11.3",
-    "jsonwebtoken": "^5.0.4",
+    "jsonwebtoken": "^9.0.0",
     "node-red-contrib-firebase-data": "0.0.11",
     "node-red-contrib-pubnub": "^4.0.2",
     "pg": "^8.3.0",
