@@ -8,11 +8,11 @@
     "start": "node app"
   },
   "engines": {
-    "node": "14.19.1"
+    "node": "18.15.0"
   },
   "files": [],
   "dependencies": {
-    "@uhuru/node-red": "^2.2.2-n.2",
+    "@uhuru/node-red": "^3.0.2-beta.2",
     "bcryptjs": "~2.x",
     "body-parser": "^1.14.0",
     "ejs": "^2.3.4",
@@ -25,6 +25,5 @@
     "request": "^2.65.0",
     "uuid": "^2.0.1",
     "when": "~3.x"
-  },
-  "devDependencies": {}
+  }
 }
