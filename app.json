@@ -29,7 +29,7 @@
     {
       "plan": "heroku-postgresql:essential-0",
       "options": {
-        "version": "14"
+        "version": "17"
       }
     }
   ]
