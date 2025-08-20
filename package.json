@@ -1,6 +1,6 @@
 {
   "name": "enebular-agent-heroku",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "private": true,
   "description": "",
   "main": "app.js",
@@ -19,7 +19,7 @@
     "express": "~4.x",
     "express-session": "^1.11.3",
     "jsonwebtoken": "^9.0.2",
-    "node-red-contrib-firebase-data": "0.0.12-beta.1",
+    "node-red-contrib-firebase-data": "0.0.12",
     "node-red-contrib-pubnub": "^4.0.2",
     "pg": "^8.3.0",
     "request": "^2.65.0",
