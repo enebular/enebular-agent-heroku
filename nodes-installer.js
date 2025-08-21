@@ -153,7 +153,7 @@ const prepareEnebularFlow = async () => {
       return null
     }
     if (body) {
-      let data = JSON.parse(body)
+      let data = body
       let flows = data && data.flow ? data.flow : []
       let credentials = data && data.cred ? data.cred : {}
       let packages = {}
