@@ -1,4 +1,4 @@
-const request = require('request')
+const axios = require('axios')
 const path = require('path')
 const { promisify } = require('util')
 const { execFile } = require('child_process')
@@ -39,19 +39,14 @@ const savePrivateNodeFilesToPG = async (packages) => {
 
 const downloadAndSavePrivateNode = async (packageName, url) => {
   console.log('downloadAndSavePrivateNode:', packageName, url)
-  const { err, res, body } = await new Promise((resolve, reject) => {
-    request.get(url, { encoding: null }, (err, res, body) => {
-      //console.log(`download ${packageName} `, err, res, body)
-      resolve({ err, res, body })
-    })
-  })
-  if (err) {
-    throw err
-  } else {
-    if (res.statusCode != 200) {
-      console.error('Failed to download privatenode' + res.statusCode)
+  try {
+    const res = await axios.get(url)
+    const body = res.data
+    
+    if (res.status != 200) {
+      console.error('Failed to download privatenode' + res.status)
       throw new Error(
-        'Failed to download privatenode: status code:' + res.statusCode
+        'Failed to download privatenode: status code:' + res.status
       )
     } else {
       let buffer = new Buffer.from(body)
@@ -62,6 +57,8 @@ const downloadAndSavePrivateNode = async (packageName, url) => {
         data: base64str
       })
     }
+  } catch (err) {
+    throw err
   }
 }
 
@@ -147,35 +144,35 @@ const prepareEnebularFlow = async () => {
   }
   await pgutil.removeConfig(appname)
   await pgutil.removePrivateNodes(appname)
-  const data = await new Promise((resolve, reject) => {
-    request.get({ url: url, json: false }, (err, res, body) => {
-      if (err) {
-        return reject(err)
+  
+  try {
+    const res = await axios.get(url)
+    const body = res.data
+    
+    if (res.status != 200) {
+      return null
+    }
+    if (body) {
+      let data = JSON.parse(body)
+      let flows = data && data.flow ? data.flow : []
+      let credentials = data && data.cred ? data.cred : {}
+      let packages = {}
+      if (data && data.packages) {
+        packages = data.packages
+        await savePrivateNodeFilesToPG(packages)
       }
-      if (res.statusCode != 200) {
-        return resolve(null)
-      }
-      if (body) {
-        let data = JSON.parse(body)
-        resolve(data)
-      }
-    })
-  })
-  let flows = data && data.flow ? data.flow : []
-  let credentials = data && data.cred ? data.cred : {}
-  let packages = {}
-  if (data && data.packages) {
-    packages = data.packages
-    await savePrivateNodeFilesToPG(packages)
+      await pgutil.saveConfig(appname, {
+        appname,
+        flows,
+        credentials,
+        packages,
+        settings: {},
+        secureLink: url
+      })
+    }
+  } catch (err) {
+    throw err
   }
-  await pgutil.saveConfig(appname, {
-    appname,
-    flows,
-    credentials,
-    packages,
-    settings: {},
-    secureLink: url
-  })
 }
 
 const installNodes = async () => {
