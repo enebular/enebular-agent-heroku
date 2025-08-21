@@ -38,7 +38,6 @@ app.all("/red/*", JWTAuth(public_key_path, {
 */
 
 app.use('/red', express.static('public'))
-app.set('view engine', 'ejs')
 
 RED.init(server, settings)
 app.use(settings.httpAdminRoot, RED.httpAdmin)

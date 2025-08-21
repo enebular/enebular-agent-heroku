@@ -22,7 +22,7 @@
     },
     "AGENT_HEROKU_VERSION": {
       "description": "versioin of enebular agent heroku (do not change)",
-      "value": "1.4.1"
+      "value": "1.4.2"
     }
   },
   "addons": [
