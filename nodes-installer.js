@@ -40,9 +40,8 @@ const savePrivateNodeFilesToPG = async (packages) => {
 const downloadAndSavePrivateNode = async (packageName, url) => {
   console.log('downloadAndSavePrivateNode:', packageName, url)
   try {
-    const res = await axios.get(url, {
-      responseType: 'arraybuffer'  // バイナリデータとして取得
-    })
+    const res = await axios.get(url)
+    const body = res.data
     
     if (res.status != 200) {
       console.error('Failed to download privatenode' + res.status)
@@ -50,7 +49,7 @@ const downloadAndSavePrivateNode = async (packageName, url) => {
         'Failed to download privatenode: status code:' + res.status
       )
     } else {
-      let buffer = Buffer.from(res.data)
+      let buffer = new Buffer.from(body)
       let base64str = buffer.toString('base64')
       await pgutil.savePrivateNodes(appname, {
         appname,
