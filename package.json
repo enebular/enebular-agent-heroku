@@ -15,10 +15,8 @@
     "@uhuru/node-red": "^3.0.2-n.1",
     "axios": "^1.11.0",
     "body-parser": "^1.14.0",
-    "ejs": "^3.1.10",
     "express": "~4.x",
     "express-session": "^1.11.3",
-    "node-red-contrib-firebase-data": "0.0.12",
     "pg": "^8.3.0",
     "when": "~3.x"
   }
