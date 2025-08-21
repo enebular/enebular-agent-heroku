@@ -50,8 +50,8 @@ const downloadAndSavePrivateNode = async (packageName, url) => {
         'Failed to download privatenode: status code:' + res.status
       )
     } else {
-      let buffer = Buffer.from(res.data)
-      let base64str = buffer.toString('base64')
+      const buffer = Buffer.from(res.data)
+      const base64str = buffer.toString('base64')
       await pgutil.savePrivateNodes(appname, {
         appname,
         packageName,
